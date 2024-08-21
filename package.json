@@ -1,14 +1,15 @@
 {
-  "name": "codegen-resolvers",
+  "name": "codegen",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node src/main.ts",
     "generate-typings": "gql-gen --export ./dist/generator/schema.js  --template ts --out ./src/types.d.ts",
-    "generator-resolvers": "gql-gen --export ./dist/generator/schema.js --project ./src/resolvers/",
+    "generator-Entities": "gql-gen --export ./dist/generator/schema.js  --project ./src/Entities/",
+    "generator-FrontEnd": "gql-gen --export ./dist/generator/schema.js  --project ./src/FrontEnd/",
+    "generator-BackEnd": "gql-gen --export ./dist/generator/schema.js  --project ./src/BackEnd/",
     "pregenerate": "tsc ./src/typedefs/schema.ts --outDir ./dist/generator/",
-    "generate": "yarn generate-typings && yarn generator-resolvers"
+    "generate": "yarn generate-typings && yarn generator-Entities && yarn generator-FrontEnd && yarn generator-BackEnd"
   },
   "dependencies": {
     "@types/moment": "^2.13.0",

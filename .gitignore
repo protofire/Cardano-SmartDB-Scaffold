@@ -3,3 +3,4 @@ src/types.d.ts
 dist
 src/resolvers/resolver.*.ts
 .idea
+*.type.ts

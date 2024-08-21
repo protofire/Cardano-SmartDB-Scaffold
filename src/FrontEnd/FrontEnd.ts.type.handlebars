@@ -1,0 +1,10 @@
+import { BaseFrontEndApiCalls } from 'smart-db';
+import { {{#if entityPath}}{{entityPath}}{{else}}Entity{{/if}} } from '../Entities/{{#if entityFilePath}}{{entityFilePath}}{{else}}{{name}}.Entity{{/if}}';
+
+export class {{name}}Api extends BaseFrontEndApiCalls {
+    protected static _Entity = {{name}}Entity;
+
+    // #region api
+
+    // #endregion api
+}

@@ -1,0 +1,70 @@
+
+import { Schema, model, models } from 'mongoose';
+import 'reflect-metadata';
+import { Maybe, MongoAppliedFor } from 'smart-db';
+import { BaseEntityMongo } from 'smart-db/backEnd';
+import { {{name}}Entity } from './{{name}}.Entity';
+
+@MongoAppliedFor([{{name}}Entity])
+export class {{name}}EntityMongo extends BaseEntityMongo {
+    protected static Entity = {{name}}Entity;
+    protected static _mongoTableName: string = {{name}}.className();
+
+    // #region fields
+
+    {{#each fields}}
+    // {{name}}: {{type}}
+    {{/each}}
+
+    // #endregion fields
+
+    // #region internal class methods
+
+    public getMongoStatic(): typeof {{name}}EntityMongo {
+        return this.constructor as typeof {{name}}EntityMongo;
+    }
+
+    public static getMongoStatic(): typeof {{name}}EntityMongo {
+        return this as typeof {{name}}EntityMongo;
+    }
+
+    public getStatic(): typeof {{name}}Entity {
+        return this.getMongoStatic().getStatic() as typeof {{name}}Entity;
+    }
+
+    public static getStatic(): typeof {{name}}Entity {
+        return this.Entity as typeof {{name}}Entity;
+    }
+
+    public className(): string {
+        return this.getStatic().className();
+    }
+
+    public static className(): string {
+        return this.getStatic().className();
+    }
+
+    // #endregion internal class methods
+
+    // #region mongo db
+
+    public static MongoModel() {
+        interface Interface {
+            {{#each fields}}
+            {{name}}: {{convertType type}};
+            {{/each}}
+        }
+
+        const schema = new Schema<Interface>({
+            {{#each fields}}
+            {{name}}: { type: {{mongooseType type}}, required: true },
+            {{/each}}
+        });
+
+        const ModelDB = models[this._mongoTableName] || model<Interface>(this._mongoTableName, schema);
+        return ModelDB;
+    }
+
+    // #endregion mongo db
+}
+

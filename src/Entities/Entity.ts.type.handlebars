@@ -1,0 +1,31 @@
+import 'reflect-metadata';
+import { BaseEntity, Convertible, asEntity } from 'smart-db';
+
+@asEntity()
+export class {{name}}Entity extends BaseEntity {
+    protected static _apiRoute: string = '{{toLowerCase name}}';
+    protected static _className: string = '{{name}}';
+
+    // #region fields
+
+    {{#each fields}}
+    @Convertible()
+    {{name}}!: {{convertGqlTypeToTs type}};
+
+    {{/each}}
+
+    // #endregion fields
+
+    // #region db
+
+    public static defaultFieldsWhenUndefined: Record<string, boolean> = {};
+
+    public static alwaysFieldsForSelect: Record<string, boolean> = {
+        ...super.alwaysFieldsForSelect,
+        {{#each fields}}
+          {{name}}: true,
+        {{/each}}
+    };
+
+    // #endregion db
+}
