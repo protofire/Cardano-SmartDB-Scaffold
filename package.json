@@ -8,8 +8,10 @@
     "generator-Entities": "gql-gen --export ./dist/generator/schema.js  --project ./src/Entities/",
     "generator-FrontEnd": "gql-gen --export ./dist/generator/schema.js  --project ./src/FrontEnd/",
     "generator-BackEnd": "gql-gen --export ./dist/generator/schema.js  --project ./src/BackEnd/",
+    "generator-test": "gql-gen --export ./dist/generator/schema.js  --project ./src/test/",
     "pregenerate": "tsc ./src/typedefs/schema.ts --outDir ./dist/generator/",
-    "generate": "yarn generate-typings && yarn generator-Entities && yarn generator-FrontEnd && yarn generator-BackEnd"
+    "generate-index": "./generate.sh",
+    "generate": "yarn generate-typings && yarn generator-Entities && yarn generator-FrontEnd && yarn generator-BackEnd && yarn generate-index"
   },
   "dependencies": {
     "@types/moment": "^2.13.0",
