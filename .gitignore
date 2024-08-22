@@ -3,5 +3,7 @@ src/types.d.ts
 dist
 src/resolvers/resolver.*.ts
 .idea
-*.type.ts
+BackEnd/*.ts
+FrontEnd/*.ts
+Entities/*.ts
 index.*
