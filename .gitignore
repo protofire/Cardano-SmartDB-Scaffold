@@ -7,3 +7,5 @@ BackEnd/*.ts
 FrontEnd/*.ts
 Entities/*.ts
 index.*
+yarn.lock
+package-lock.json
