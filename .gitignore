@@ -4,4 +4,4 @@ dist
 src/resolvers/resolver.*.ts
 .idea
 *.type.ts
-src/*/index.*
+index.*
