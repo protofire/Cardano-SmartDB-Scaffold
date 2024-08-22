@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Definir la ruta de la carpeta
-BACKEND_DIR="./src/BackEnd"
+BACKEND_DIR="./BackEnd"
 
 # Definir la ruta del archivo index.ts
 INDEX_FILE="$BACKEND_DIR/index.ts"
@@ -24,7 +24,7 @@ done
 echo "index.ts generado en $BACKEND_DIR"
 
 # Definir la ruta de la carpeta
-ENTITIES_DIR="./src/Entities"
+ENTITIES_DIR="./Entities"
 
 # Definir la ruta del archivo index.ts
 INDEX_FILE="$ENTITIES_DIR/index.ts"

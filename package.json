@@ -5,11 +5,11 @@
   "license": "MIT",
   "scripts": {
     "generate-typings": "gql-gen --export ./dist/generator/schema.js  --template ts --out ./src/types.d.ts",
-    "generator-Entities": "gql-gen --export ./dist/generator/schema.js  --project ./src/Entities/",
-    "generator-FrontEnd": "gql-gen --export ./dist/generator/schema.js  --project ./src/FrontEnd/",
-    "generator-BackEnd": "gql-gen --export ./dist/generator/schema.js  --project ./src/BackEnd/",
+    "generator-Entities": "gql-gen --export ./dist/generator/schema.js  --project ./Entities/",
+    "generator-FrontEnd": "gql-gen --export ./dist/generator/schema.js  --project ./FrontEnd/",
+    "generator-BackEnd": "gql-gen --export ./dist/generator/schema.js  --project ./BackEnd/",
     "generate-index": "./generate.sh",
-    "clean": "find src/BackEnd src/Entities src/FrontEnd -type f -name '*.ts' -delete",
+    "clean": "find BackEnd Entities FrontEnd -type f -name '*.ts' -delete",
     "generate": "yarn generate-typings && yarn generator-Entities && yarn generator-FrontEnd && yarn generator-BackEnd && yarn generate-index"
   },
   "dependencies": {
