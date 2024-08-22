@@ -50,6 +50,7 @@ for file in $ENTITIES_DIR/*.ts; do
     fi
   fi
 done
+echo "export * from './index';" >> $INDEX_DB_FILE
 
 echo "index.ts generado en $ENTITIES_DIR"
 echo "index.mongo.ts generado en $ENTITIES_DIR"
