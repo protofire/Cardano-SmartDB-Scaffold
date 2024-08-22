@@ -8,7 +8,7 @@ import { {{name}}Entity } from './{{name}}.Entity';
 @MongoAppliedFor([{{name}}Entity])
 export class {{name}}EntityMongo extends BaseEntityMongo {
     protected static Entity = {{name}}Entity;
-    protected static _mongoTableName: string = {{name}}.className();
+    protected static _mongoTableName: string = {{name}}Entity.className();
 
     // #region fields
 
