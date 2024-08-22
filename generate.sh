@@ -62,7 +62,7 @@ for file in $ENTITIES_DIR/Entity.*.type.ts; do
       new_filename="${name}.Entity.Mongo.ts"
       
       # Renombrar el archivo
-      mv "$file" "$BACKEND_DIR/$new_filename"
+      mv "$file" "$ENTITIES_DIR/$new_filename"
     else
       base=${filename#Entity.}
       base=${base%.type.ts}
