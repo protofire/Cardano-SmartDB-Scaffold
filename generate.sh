@@ -94,7 +94,7 @@ for file in $ENTITIES_DIR/*.ts; do
   if [ "$filename" != "index.ts" ] && [ "$filename" != "index.BackEnd.ts" ]; then
     # Quitar la extensión del archivo
     name="${filename%.*}"
-    if [[ $filename == *.Mongo.*.ts ]]; then
+    if [[ $filename == *.Mongo.ts ]]; then
       # Agregar la línea de exportación al archivo index.mongo.ts
       echo "export * from './$name';" >> $INDEX_DB_FILE
     else
