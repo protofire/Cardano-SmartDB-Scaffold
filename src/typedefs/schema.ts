@@ -1,43 +1,13 @@
 import gql from 'graphql-tag';
 import { makeExecutableSchema } from 'graphql-tools';
 import { GraphQLSchema } from 'graphql';
+import * as fs from 'fs';
 
-export const typeDefs = gql`
-  directive @entity on OBJECT
-  directive @smartDBEntity on OBJECT
-  directive @resolvers on OBJECT
-  directive @query(collection: String!, query: String = "{}", sort: String = "{}", limit: Int) on FIELD
-  directive @map(toField: String!) on FIELD
-  directive @util(fromContext: String, momentFormat: String, objectField: String) on FIELD
-  directive @link(collection: String!, objectField: String!, queryField: String!) on FIELD
+// Leer el archivo y asignar su contenido a una variable
+const filePath = 'schema.graphql';
+const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-  type Dummy @smartDBEntity {
-    _NET_id_TN: String
-    ddPaymentPKH: String
-    ddStakePKH: String
-    ddValue: Int
-  }
-
-  type Test @entity {
-    name: String
-    description: String
-  } 
-
-  type Producto @entity {
-    name: String
-    description: String
-    precio: Int
-  }
-
-  type Query @resolvers {
-    test: [Test] @query(collection: "tests", sort: "{ createdAt: 1 }")
-    dummy: [Dummy] @query(collection: "dummys")
-  }
-
-  schema {
-    query: Query
-  }
-`;
+export const typeDefs = gql(fileContent);
 
 const Handlebars = require('handlebars');
 
