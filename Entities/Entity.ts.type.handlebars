@@ -1,8 +1,19 @@
 import 'reflect-metadata';
+{{#ifDirective this "entity"}}
 import { BaseEntity, Convertible, asEntity } from 'smart-db';
+{{/ifDirective}}
+{{#ifDirective this "smartDBEntity"}}
+import { BaseSmartDBEntity, Convertible, Maybe, StakeCredentialPubKeyHash, asSmartDBEntity } from 'smart-db';
+{{/ifDirective}}
 
+{{#ifDirective this "entity"}}
 @asEntity()
-export class {{name}}Entity extends BaseEntity {
+{{/ifDirective}}
+{{#ifDirective this "smartDBEntity"}}
+@asSmartDBEntity()
+{{/ifDirective}}
+
+export class {{name}}Entity extends {{#ifDirective this "entity"}}Base{{/ifDirective}}{{#ifDirective this "smartDBEntity"}}BaseSmartDB{{/ifDirective}}Entity {
     protected static _apiRoute: string = '{{toLowerCase name}}';
     protected static _className: string = '{{name}}';
 
