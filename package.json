@@ -5,13 +5,15 @@
   "license": "MIT",
   "scripts": {
     "generate-typings": "gql-gen --export ./dist/generator/schema.js  --template ts --out ./src/types.d.ts",
-    "generator-Entities": "gql-gen --export ./dist/generator/schema.js  --project ./Entities/",
-    "generator-FrontEnd": "gql-gen --export ./dist/generator/schema.js  --project ./FrontEnd/",
-    "generator-BackEnd": "gql-gen --export ./dist/generator/schema.js  --project ./BackEnd/",
+    "generator-entities": "gql-gen --export ./dist/generator/schema.js  --project ./Entities/",
+    "generator-frontEnd": "gql-gen --export ./dist/generator/schema.js  --project ./FrontEnd/",
+    "generator-backend": "gql-gen --export ./dist/generator/schema.js  --project ./BackEnd/",
+    "generator-pages": "gql-gen --export ./dist/generator/schema.js  --project ./pages/",
+    "generator-components": "gql-gen --export ./dist/generator/schema.js  --project ./components/public/",
     "pregenerate": "tsc ./src/typedefs/schema.ts --outDir ./dist/generator/",
     "generate-index": "./generate.sh",
-    "clean": "find BackEnd Entities FrontEnd -type f -name '*.ts' -delete",
-    "generate": "yarn generate-typings && yarn generator-Entities && yarn generator-FrontEnd && yarn generator-BackEnd && yarn generate-index"
+    "clean": "find BackEnd Entities FrontEnd pages components -type f -name '*.ts' -delete",
+    "generate": "yarn generate-typings && yarn generator-entities && yarn generator-frontEnd && yarn generator-backend && yarn generate-index && yarn generator-pages && yarn generator-components"
   },
   "dependencies": {
     "@types/moment": "^2.13.0",
