@@ -63,6 +63,17 @@ for file in $ENTITIES_DIR/Entity.*.type.ts; do
       
       # Renombrar el archivo
       mv "$file" "$ENTITIES_DIR/$new_filename"
+  elif [[ $filename == *.PostgreSQL.*.ts ]]; then
+      base=${filename#Entity.PostgreSQL.}
+      base=${base%.type.ts}
+
+      name=$(echo "${base%%.*}" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+      # Construir el nuevo nombre de archivo
+      new_filename="${name}.Entity.PostgreSQL.ts"
+      
+      # Renombrar el archivo
+      mv "$file" "$ENTITIES_DIR/$new_filename"
+
     else
       base=${filename#Entity.}
       base=${base%.type.ts}
@@ -95,6 +106,9 @@ for file in $ENTITIES_DIR/*.ts; do
     # Quitar la extensión del archivo
     name="${filename%.*}"
     if [[ $filename == *.Mongo.ts ]]; then
+      # Agregar la línea de exportación al archivo index.mongo.ts
+      echo "export * from './$name';" >> $INDEX_DB_FILE
+    elif [[ $filename == *.PostgreSQL.ts ]]; then
       # Agregar la línea de exportación al archivo index.mongo.ts
       echo "export * from './$name';" >> $INDEX_DB_FILE
     else

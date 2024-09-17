@@ -1,10 +1,8 @@
 import 'reflect-metadata';
-{{#ifDirective this "entity"}}
-import { BaseEntity, Convertible, asEntity } from 'smart-db';
-{{/ifDirective}}
-{{#ifDirective this "smartDBEntity"}}
-import { BaseSmartDBEntity, Convertible, Maybe, StakeCredentialPubKeyHash, asSmartDBEntity } from 'smart-db';
-{{/ifDirective}}
+
+import { Convertible {{#ifDirective this "entity"}}, BaseEntity, asEntity{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}, BaseSmartDBEntity, asSmartDBEntity{{/ifDirective}} {{#ifDirective this "especialImports" }} {{#each fromSmart_db as |import|}}, {{{import}}}{{/each}} {{/ifDirective}} } from 'smart-db';
+
+import { {{#ifDirective this "especialImports" }} {{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}} {{/ifDirective}} } from 'lucid-cardano';
 
 {{#ifDirective this "entity"}}
 @asEntity()
@@ -20,8 +18,8 @@ export class {{name}}Entity extends {{#ifDirective this "entity"}}Base{{/ifDirec
     // #region fields
 
     {{#each fields}}
-    @Convertible()
-    {{name}}!: {{convertGqlTypeToTs type}};
+    @Convertible({{#ifDirective this "convertible" }} { {{#each params as |param|}}{{{param}}}, {{/each}} } {{/ifDirective}})
+    {{name}}{{#ifDirective this "nullable"}}?{{ else }}!{{/ifDirective}}: {{#ifDirective this "especialType" }} {{{typeName}}} {{ else }}{{convertGqlTypeToTs type}}{{/ifDirective}};
 
     {{/each}}
 

@@ -25,6 +25,7 @@ function convertGqlTypeToTs(gqlType) {
     return gqlToTsTypeMap[gqlType] || gqlType;
 }
 
+
 // Registrando el helper en Handlebars
 Handlebars.registerHelper('convertGqlTypeToTs', function(gqlType) {
     return convertGqlTypeToTs(gqlType);
@@ -49,7 +50,36 @@ Handlebars.registerHelper('convertType', function(gqlType) {
     };
     return gqlToTsTypeMap[gqlType] || gqlType;
 });
+Handlebars.registerHelper('columnOptions', function(gqfield) {
+    let options = `type: ${getTypeORMType(gqfield.type)}`;
+    
+    // Añade más opciones según sea necesario
+    return options;
+});
 
+function getTypeORMType(gqlType) {
+    switch(gqlType) {
+        case 'String':
+            return "\"varchar\", length: 255";
+        case 'Int':
+            return "\"int\"";
+        // Añade más casos según sea necesario
+        default:
+            return "\"varchar\", length: 255";
+    }
+}
+
+Handlebars.registerHelper('typeORMType', function(gqlType) {
+    const gqlToMongooseTypeMap = {
+        'String': 'string',
+        'Int': 'number',
+        'Float': 'number',
+        'Boolean': 'boolean',
+        'ID': 'string',
+        // Agrega más mapeos si es necesario
+    };
+    return gqlToMongooseTypeMap[gqlType] || 'String';
+});
 // Helper para convertir tipos de GraphQL a tipos de Mongoose
 Handlebars.registerHelper('mongooseType', function(gqlType) {
     const gqlToMongooseTypeMap = {
@@ -60,8 +90,19 @@ Handlebars.registerHelper('mongooseType', function(gqlType) {
         'ID': 'String',
         // Agrega más mapeos si es necesario
     };
+
+    // Verificar si el tipo es un array
+    if (gqlType.endsWith('[]')) {
+        // Extraer el tipo base (sin los corchetes)
+        const baseType = gqlType.slice(0, -2);
+        // Mapear el tipo base y devolverlo como un array
+        return `[${gqlToMongooseTypeMap[baseType] || 'String'}]`;
+    }
+
+    // Si no es un array, devolver el tipo mapeado o 'String' por defecto
     return gqlToMongooseTypeMap[gqlType] || 'String';
 });
+
 export default makeExecutableSchema({
   allowUndefinedInResolve: true,
   typeDefs,

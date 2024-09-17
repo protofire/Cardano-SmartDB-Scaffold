@@ -1,19 +1,22 @@
 
 import { Schema, model, models } from 'mongoose';
 import 'reflect-metadata';
-import { Maybe, MongoAppliedFor } from 'smart-db';
-import { BaseEntityMongo } from 'smart-db/backEnd';
+import { MongoAppliedFor {{#ifDirective this "especialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
+import { {{#ifDirective this "entity"}}BaseEntityMongo{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityMongo, IBaseSmartDBEntity{{/ifDirective}} } from 'smart-db/backEnd';
 import { {{name}}Entity } from './{{name}}.Entity';
+{{#ifDirective this "especialImports" }}
+import { {{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}} } from 'lucid-cardano';
+{{/ifDirective}}
 
 @MongoAppliedFor([{{name}}Entity])
-export class {{name}}EntityMongo extends BaseEntityMongo {
+export class {{name}}EntityMongo extends {{#ifDirective this "entity"}}BaseEntityMongo{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityMongo{{/ifDirective}} {
     protected static Entity = {{name}}Entity;
     protected static _mongoTableName: string = {{name}}Entity.className();
 
     // #region fields
 
     {{#each fields}}
-    // {{name}}: {{type}}
+    // {{name}}:{{#ifDirective this "especialType" }} {{{typeName}}} {{ else }}{{type}}{{/ifDirective}}
     {{/each}}
 
     // #endregion fields
@@ -51,13 +54,13 @@ export class {{name}}EntityMongo extends BaseEntityMongo {
     public static MongoModel() {
         interface Interface {
             {{#each fields}}
-            {{name}}: {{convertType type}};
+            {{name}}: {{#ifDirective this "especialType" }} {{{typeName}}} {{ else }}{{convertType type}}{{/ifDirective}};
             {{/each}}
         }
 
         const schema = new Schema<Interface>({
             {{#each fields}}
-            {{name}}: { type: {{mongooseType type}}, required: true },
+            {{name}}: { type: {{mongooseType type}}, required: {{#ifDirective this "nullable"}}false{{else}}true{{/ifDirective}} },
             {{/each}}
         });
 
