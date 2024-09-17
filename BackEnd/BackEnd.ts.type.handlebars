@@ -1,0 +1,21 @@
+import {
+    BackEndApiHandlersFor,
+    BackEndAppliedFor,
+    BaseBackEndApiHandlers,
+    BaseBackEndApplied,
+    BaseBackEndMethods
+} from 'smart-db/backEnd';
+import { {{name}}Entity } from '../Entities/{{name}}.Entity';
+
+@BackEndAppliedFor({{name}}Entity)
+export class {{name}}BackEndApplied extends BaseBackEndApplied {
+    protected static _Entity = {{name}}Entity;
+    protected static _BackEndMethods = BaseBackEndMethods;
+}
+
+@BackEndApiHandlersFor({{name}}Entity)
+export class {{name}}ApiHandlers extends BaseBackEndApiHandlers {
+    protected static _Entity = {{name}}Entity;
+    protected static _BackEndApplied = {{name}}BackEndApplied;
+}
+

@@ -1,0 +1,41 @@
+  directive @entity on OBJECT
+  directive @smartDBEntity on OBJECT
+  directive @resolvers on OBJECT
+  directive @especialImports(fromSmart_db: [String], fromLucid_cardano: [String], rawImport: String) on OBJECT
+  directive @index(indexName:[String]) on OBJECT
+
+  directive @nullable on FIELD
+  directive @especialType(typeName:String!) on FIELD
+  directive @convertible(params: [String])on FIELD
+
+  directive @query(collection: String!, query: String = "{}", sort: String = "{}", limit: Int) on FIELD
+  directive @map(toField: String!) on FIELD
+  directive @util(fromContext: String, momentFormat: String, objectField: String) on FIELD
+  directive @link(collection: String!, objectField: String!, queryField: String!) on FIELD
+
+  type Dummy @smartDBEntity @especialImports(fromSmart_db:["Maybe", "StakeCredentialPubKeyHash"], fromLucid_cardano: ["type PaymentKeyHash"]) @index(indexName:["ddPaymentPKH"]) {
+    _NET_id_TN: String
+    ddPaymentPKH: String @especialType(typeName:"PaymentKeyHash") @convertible(params:["isForDatum: true"])
+    ddStakePKH: String @especialType(typeName:"Maybe<StakeCredentialPubKeyHash>") @convertible(params:["isForDatum: true", "type: Maybe<StakeCredentialPubKeyHash>"])
+    ddValue: Int @convertible(params:["isForDatum: true"])
+  }
+
+  type Test @entity {
+    name: String
+    description: String
+  } 
+
+  type Producto @entity {
+    name: String @nullable
+    description: String
+    precio: Int
+  }
+
+  type Query @resolvers {
+    test: [Test] @query(collection: "tests", sort: "{ createdAt: 1 }")
+    dummy: [Dummy] @query(collection: "dummys")
+  }
+
+  schema {
+    query: Query
+  }

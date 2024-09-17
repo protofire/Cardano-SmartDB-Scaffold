@@ -1,0 +1,38 @@
+{
+  "name": "codegen",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "generate-typings": "gql-gen --export ./dist/generator/schema.js  --template ts --out ./src/types.d.ts",
+    "generator-entities": "gql-gen --export ./dist/generator/schema.js  --project ./Entities/",
+    "generator-frontEnd": "gql-gen --export ./dist/generator/schema.js  --project ./FrontEnd/",
+    "generator-backend": "gql-gen --export ./dist/generator/schema.js  --project ./BackEnd/",
+    "generator-pages": "gql-gen --export ./dist/generator/schema.js  --project ./pages/",
+    "generator-components": "gql-gen --export ./dist/generator/schema.js  --project ./components/public/",
+    "pregenerate": "tsc ./src/typedefs/schema.ts --outDir ./dist/generator/",
+    "generate-index": "./generate.sh",
+    "clean": "find BackEnd Entities FrontEnd pages components -type f -name '*.ts' -delete",
+    "generate": "yarn generate-typings && yarn generator-entities && yarn generator-frontEnd && yarn generator-backend && yarn generate-index && yarn generator-pages && yarn generator-components"
+  },
+  "dependencies": {
+    "@types/moment": "^2.13.0",
+    "@types/mongodb": "^4.0.7",
+    "@types/node": "^8.0.47",
+    "@types/whatwg-url": "^11.0.5",
+    "apollo-server-express": "^3.13.0",
+    "body-parser": "^1.18.2",
+    "bson": "^6.8.0",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "graphql": "0.10.5",
+    "graphql-code-generator": "0.9.0-alpha.0bf8d921",
+    "graphql-tag": "^2.12.6",
+    "graphql-tools": "1.2.2",
+    "merge-graphql-schemas-ts": "^1.1.4",
+    "moment": "^2.19.1",
+    "mongodb": "^6.8.0",
+    "ts-node": "^3.3.0",
+    "typescript": "^5.5.4"
+  }
+}
