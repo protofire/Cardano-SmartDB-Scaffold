@@ -1,6 +1,8 @@
-import { Address, Lucid, Script, SpendingValidator } from 'lucid-cardano';
+import { {{name}}Entity } from '../../../lib/SmartDB/Entities/{{name}}.Entity';
+import { {{name}}Api } from '../../../lib/SmartDB/FrontEnd/{{name}}.FrontEnd.Api.Calls';
 import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
+<<<<<<< HEAD
 import {
     ADA_UI,
     BaseSmartDBFrontEndApiCalls,
@@ -20,6 +22,9 @@ import styles from './{{name}}.module.scss';
 import { ClaimTxParams, CreateTxParams, UpdateTxParams } from '@example/src/lib/Commons/Constants/transactions';
 import { {{name}}Entity } from '@example/src/lib/SmartDB/Entities';
 import { {{name}}Api } from '@example/src/lib/SmartDB/FrontEnd/{{name}}.FrontEnd.Api.Calls';
+=======
+import styles from './Product.module.scss';
+>>>>>>> 176051b (update handlebar)
 
 export default function {{name}}() {
     //--------------------------------------

@@ -20,7 +20,7 @@ type Test @entity {
     description: String
 } 
 
-type Producto @entity {
+type Product @entity {
     name: String @nullable
     description: String
     precio: Int
