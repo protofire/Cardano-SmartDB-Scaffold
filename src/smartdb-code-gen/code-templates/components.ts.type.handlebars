@@ -49,11 +49,12 @@ export default function {{name}}() {
     //----------------------------
     return (
         <div className={styles.content}>
-            HOLA
+            Create {{name}}
             <div>
                 <div className={styles.subTitle}>CREATE</div>
                 <button onClick={handleBtnCreate}>Create</button>
             </div>
+            List of {{name}}
             <div>
                 <div className={styles.subTitle}>LIST</div>
                 {list?.map((item, index) => (

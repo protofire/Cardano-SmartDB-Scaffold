@@ -7,6 +7,5 @@
     "Boolean": "boolean",
     "ID": "string"
   },
-  "customHelpers": {
-  }
+  "customHelpers": {}
 }

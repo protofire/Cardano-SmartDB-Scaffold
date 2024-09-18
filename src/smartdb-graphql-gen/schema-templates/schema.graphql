@@ -5,7 +5,7 @@
   directive @index(indexName:[String]) on OBJECT
 
   directive @nullable on FIELD
-  directive @especialType(typeName:String!) on FIELD
+  directive @specialType(typeName:String!) on FIELD
   directive @convertible(params: [String])on FIELD
 
   directive @query(collection: String!, query: String = "{}", sort: String = "{}", limit: Int) on FIELD
@@ -15,8 +15,8 @@
 
   type Dummy @smartDBEntity @especialImports(fromSmart_db:["Maybe", "StakeCredentialPubKeyHash"], fromLucid_cardano: ["type PaymentKeyHash"]) @index(indexName:["ddPaymentPKH"]) {
     _NET_id_TN: String
-    ddPaymentPKH: String @especialType(typeName:"PaymentKeyHash") @convertible(params:["isForDatum: true"])
-    ddStakePKH: String @especialType(typeName:"Maybe<StakeCredentialPubKeyHash>") @convertible(params:["isForDatum: true", "type: Maybe<StakeCredentialPubKeyHash>"])
+    ddPaymentPKH: String @specialType(typeName:"PaymentKeyHash") @convertible(params:["isForDatum: true"])
+    ddStakePKH: String @specialType(typeName:"Maybe<StakeCredentialPubKeyHash>") @convertible(params:["isForDatum: true", "type: Maybe<StakeCredentialPubKeyHash>"])
     ddValue: Int @convertible(params:["isForDatum: true"])
   }
 

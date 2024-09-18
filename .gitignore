@@ -9,3 +9,11 @@ Entities/*.ts
 index.*
 yarn.lock
 package-lock.json
+
+
+/_OLD/**/*/
+
+/_OLD/*
+
+/bin/*
+

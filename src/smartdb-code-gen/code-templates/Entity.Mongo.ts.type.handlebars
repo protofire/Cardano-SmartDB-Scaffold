@@ -16,7 +16,7 @@ export class {{name}}EntityMongo extends {{#ifDirective this "entity"}}BaseEntit
     // #region fields
 
     {{#each fields}}
-    // {{name}}:{{#ifDirective this "especialType" }} {{{typeName}}} {{ else }}{{type}}{{/ifDirective}}
+    // {{name}}:{{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{type}}{{/ifDirective}}
     {{/each}}
 
     // #endregion fields
@@ -54,7 +54,7 @@ export class {{name}}EntityMongo extends {{#ifDirective this "entity"}}BaseEntit
     public static MongoModel() {
         interface Interface {
             {{#each fields}}
-            {{name}}: {{#ifDirective this "especialType" }} {{{typeName}}} {{ else }}{{convertType type}}{{/ifDirective}};
+            {{name}}: {{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertType type}}{{/ifDirective}};
             {{/each}}
         }
 
