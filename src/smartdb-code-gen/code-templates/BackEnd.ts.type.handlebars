@@ -1,21 +1,64 @@
+{{#ifDirective this "smartDBEntity"}}
+import { NextApiResponse } from 'next';
+{{/ifDirective}}
 import {
     BackEndApiHandlersFor,
     BackEndAppliedFor,
+{{#ifDirective this "entity"}}
     BaseBackEndApiHandlers,
     BaseBackEndApplied,
-    BaseBackEndMethods
+    BaseBackEndMethods,
+{{/ifDirective}}
+{{#ifDirective this "smartDBEntity"}}
+    BaseSmartDBBackEndApiHandlers,
+    BaseSmartDBBackEndApplied,
+    BaseSmartDBBackEndMethods,
+    NextApiRequestAuthenticated,
+{{/ifDirective}}
 } from 'smart-db/backEnd';
 import { {{name}}Entity } from '../Entities/{{name}}.Entity';
 
 @BackEndAppliedFor({{name}}Entity)
-export class {{name}}BackEndApplied extends BaseBackEndApplied {
+export class {{name}}BackEndApplied extends {{#ifDirective this "entity"}}BaseBackEndApplied{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBBackEndApplied{{/ifDirective}}  {
     protected static _Entity = {{name}}Entity;
-    protected static _BackEndMethods = BaseBackEndMethods;
+    protected static _BackEndMethods = {{#ifDirective this "entity"}}BaseBackEndMethods{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBBackEndMethods{{/ifDirective}};
 }
 
 @BackEndApiHandlersFor({{name}}Entity)
-export class {{name}}ApiHandlers extends BaseBackEndApiHandlers {
+export class {{name}}ApiHandlers extends {{#ifDirective this "entity"}}BaseBackEndApiHandlers{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBBackEndApiHandlers{{/ifDirective}}   {
     protected static _Entity = {{name}}Entity;
     protected static _BackEndApplied = {{name}}BackEndApplied;
+{{#ifDirective this "smartDBEntity"}}
+// #region custom api handlers
+
+    protected static _ApiHandlers: string[] = ['tx'];
+
+    protected static async executeApiHandlers(command: string, req: NextApiRequestAuthenticated, res: NextApiResponse) {
+        //--------------------
+        const { query } = req.query;
+        //--------------------
+        if (this._ApiHandlers.includes(command) && query !== undefined) {
+            if (query[0] === 'tx') {
+                if (query.length === 2) {
+                    // if (query[1] === 'create-dummy-tx') {
+                    //     return await this.createTxApiHandler(req, res);
+                    // } else if (query[1] === 'claim-dummy-tx') {
+                    //     return await this.claimTxApiHandler(req, res);
+                    // } else if (query[1] === 'update-dummy-tx') {
+                    //     return await this.updateTxApiHandler(req, res);
+                    // }
+                }
+                return res.status(405).json({ error: "Wrong Api route"});
+            } else {
+                console_error(0, this._Entity.className(), `executeApiHandlers - Error: Api Handler function not found`);
+                return res.status(500).json({ error: "Api Handler function not found "});
+            }
+        } else {
+            console_error(0, this._Entity.className(), `executeApiHandlers - Error: Wrong Custom Api route`);
+            return res.status(405).json({ error:"Wrong Custom Api route "});
+        }
+    }
+
+    // #endregion custom api handlers{{/ifDirective}}
 }
 

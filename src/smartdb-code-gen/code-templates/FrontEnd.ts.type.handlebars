@@ -1,7 +1,7 @@
-import { BaseFrontEndApiCalls } from 'smart-db';
+import { {{#ifDirective this "entity"}}BaseFrontEndApiCalls{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBFrontEndTxApiCalls{{/ifDirective}}   } from 'smart-db';
 import { {{name}}Entity } from '../Entities/{{name}}.Entity';
 
-export class {{name}}Api extends BaseFrontEndApiCalls {
+export class {{name}}Api extends  {{#ifDirective this "entity"}}BaseFrontEndApiCalls{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBFrontEndTxApiCalls{{/ifDirective}}   {
     protected static _Entity = {{name}}Entity;
 
     // #region api
