@@ -1,38 +1,56 @@
 {
-  "name": "codegen",
+  "name": "smart-db-scaffold-cli",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "description": "CLI tools for Smart DB schema and code generation",
+  "main": "dist/index.js",
+  "bin": {
+    "smartdb-graphql-gen": "./bin/smartdb-graphql-gen",
+    "smartdb-code-gen": "./bin/smartdb-code-gen"
+  },
   "scripts": {
-    "generate-typings": "gql-gen --export ./dist/generator/schema.js  --template ts --out ./src/types.d.ts",
-    "generator-entities": "gql-gen --export ./dist/generator/schema.js  --project ./Entities/",
-    "generator-frontEnd": "gql-gen --export ./dist/generator/schema.js  --project ./FrontEnd/",
-    "generator-backend": "gql-gen --export ./dist/generator/schema.js  --project ./BackEnd/",
-    "generator-pages": "gql-gen --export ./dist/generator/schema.js  --project ./pages/",
-    "generator-components": "gql-gen --export ./dist/generator/schema.js  --project ./components/public/",
-    "pregenerate": "tsc ./src/typedefs/schema.ts --outDir ./dist/generator/",
-    "generate-index": "./generate.sh",
-    "clean": "find BackEnd Entities FrontEnd pages components -type f -name '*.ts' -delete",
-    "generate": "yarn generate-typings && yarn generator-entities && yarn generator-frontEnd && yarn generator-backend && yarn generate-index && yarn generator-pages && yarn generator-components"
+    "build": "tsc && npm run copy-templates && npm run copy-config",
+    "copy-templates": "copyfiles -u 3 src/smartdb-code-gen/code-templates/*.handlebars dist/smartdb-code-gen/code-templates/",
+    "copy-config": "copyfiles -u 3 src/smartdb-code-gen/config/* dist/smartdb-code-gen/config/",
+    "smartdb-graphql-gen-builded": "node dist/smartdb-graphql-gen/index.js",
+    "smartdb-code-gen-builded": "node dist/smartdb-code-gen/index.js",
+    "smartdb-graphql-gen": "ts-node src/smartdb-graphql-gen/index.ts",
+    "smartdb-code-gen": "ts-node src/smartdb-code-gen/index.ts",
+    "pkg": "pkg .",
+    "pkg-smartdb-graphql-gen": "pkg dist/smartdb-graphql-gen/index.js -t node16-linux-x64,node16-macos-x64,node16-win-x64 -o bin/smartdb-graphql-gen",
+    "pkg-smartdb-code-gen": "pkg dist/smartdb-code-gen/index.js -t node16-linux-x64,node16-macos-x64,node16-win-x64 -o bin/smartdb-code-gen"
   },
   "dependencies": {
-    "@types/moment": "^2.13.0",
-    "@types/mongodb": "^4.0.7",
-    "@types/node": "^8.0.47",
-    "@types/whatwg-url": "^11.0.5",
-    "apollo-server-express": "^3.13.0",
-    "body-parser": "^1.18.2",
-    "bson": "^6.8.0",
-    "cors": "^2.8.4",
-    "express": "^4.16.2",
-    "graphql": "0.10.5",
+    "chalk": "^4.1.2",
+    "commander": "^8.3.0",
+    "fs-extra": "^10.1.0",
+    "glob": "^11.0.0",
+    "graphql": "^0.10.5",
     "graphql-code-generator": "0.9.0-alpha.0bf8d921",
     "graphql-tag": "^2.12.6",
     "graphql-tools": "1.2.2",
+    "handlebars": "^4.7.7",
+    "inquirer": "^8.2.6",
     "merge-graphql-schemas-ts": "^1.1.4",
     "moment": "^2.19.1",
-    "mongodb": "^6.8.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/glob": "^8.1.0",
+    "@types/handlebars": "^4.1.0",
+    "@types/inquirer": "^8.1.3",
+    "@types/node": "^8.0.47",
+    "copyfiles": "^2.4.1",
+    "pkg": "^5.5.1",
     "ts-node": "^3.3.0",
     "typescript": "^5.5.4"
+  },
+  "pkg": {
+    "targets": [
+      "node16-linux-x64",
+      "node16-macos-x64",
+      "node16-win-x64"
+    ],
+    "outputPath": "dist"
   }
 }

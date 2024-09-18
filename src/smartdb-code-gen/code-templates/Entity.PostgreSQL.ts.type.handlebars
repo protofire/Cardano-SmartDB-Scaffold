@@ -1,0 +1,57 @@
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { {{name}}Entity } from './{{name}}.Entity';
+import { PostgreSQLAppliedFor, getPostgreSQLTableName{{#ifDirective this "especialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
+import { {{#ifDirective this "entity"}}BaseEntityPostgreSQL{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityPostgreSQL{{/ifDirective}} } from 'smart-db/backEnd';
+{{#ifDirective this "especialImports" }}
+import { {{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}} } from 'lucid-cardano';
+{{/ifDirective}}
+
+@PostgreSQLAppliedFor([{{name}}Entity])
+@Entity({ name: getPostgreSQLTableName({{name}}Entity.className()) })
+@Index([{{#ifDirective this "index" }}{{#each indexName as |name|}}'{{name}}', {{/each}}{{/ifDirective}}]) // Add indices as needed
+export class {{name}}EntityPostgreSQL extends {{#ifDirective this "entity"}}BaseEntityPostgreSQL{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityPostgreSQL{{/ifDirective}} {
+    protected static Entity = {{name}}Entity;
+
+    // #region internal class methods
+
+    public getPostgreSQLStatic(): typeof {{name}}EntityPostgreSQL {
+        return this.constructor as typeof {{name}}EntityPostgreSQL;
+    }
+
+    public static getPostgreSQLStatic(): typeof {{name}}EntityPostgreSQL {
+        return this as typeof {{name}}EntityPostgreSQL;
+    }
+
+    public getStatic(): typeof {{name}}Entity {
+        return {{name}}EntityPostgreSQL.getPostgreSQLStatic().getStatic() as typeof {{name}}Entity;
+    }
+
+    public static getStatic(): typeof {{name}}Entity {
+        return this.Entity as typeof {{name}}Entity;
+    }
+
+    public className(): string {
+        return this.getStatic().className();
+    }
+
+    public static className(): string {
+        return this.getStatic().className();
+    }
+
+    // #endregion internal class methods
+
+    // #region fields
+
+    @PrimaryGeneratedColumn()
+    _id!: number; // Auto-generated primary key
+
+    {{#each fields}}
+    @Column({ {{{columnOptions this }}} {{#ifDirective this "nullable"}}, nullable: true{{/ifDirective}} })
+    {{name}}{{#ifDirective this "nullable"}}?{{else}}!{{/ifDirective}}:{{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertGqlTypeToTs type}}{{/ifDirective}};
+    {{/each}}
+
+    public static PostgreSQLModel() {
+        return this;
+    }
+    // #endregion fields
+}

@@ -1,0 +1,73 @@
+
+import { Schema, model, models } from 'mongoose';
+import 'reflect-metadata';
+import { MongoAppliedFor {{#ifDirective this "especialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
+import { {{#ifDirective this "entity"}}BaseEntityMongo{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityMongo, IBaseSmartDBEntity{{/ifDirective}} } from 'smart-db/backEnd';
+import { {{name}}Entity } from './{{name}}.Entity';
+{{#ifDirective this "especialImports" }}
+import { {{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}} } from 'lucid-cardano';
+{{/ifDirective}}
+
+@MongoAppliedFor([{{name}}Entity])
+export class {{name}}EntityMongo extends {{#ifDirective this "entity"}}BaseEntityMongo{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityMongo{{/ifDirective}} {
+    protected static Entity = {{name}}Entity;
+    protected static _mongoTableName: string = {{name}}Entity.className();
+
+    // #region fields
+
+    {{#each fields}}
+    // {{name}}:{{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{type}}{{/ifDirective}}
+    {{/each}}
+
+    // #endregion fields
+
+    // #region internal class methods
+
+    public getMongoStatic(): typeof {{name}}EntityMongo {
+        return this.constructor as typeof {{name}}EntityMongo;
+    }
+
+    public static getMongoStatic(): typeof {{name}}EntityMongo {
+        return this as typeof {{name}}EntityMongo;
+    }
+
+    public getStatic(): typeof {{name}}Entity {
+        return this.getMongoStatic().getStatic() as typeof {{name}}Entity;
+    }
+
+    public static getStatic(): typeof {{name}}Entity {
+        return this.Entity as typeof {{name}}Entity;
+    }
+
+    public className(): string {
+        return this.getStatic().className();
+    }
+
+    public static className(): string {
+        return this.getStatic().className();
+    }
+
+    // #endregion internal class methods
+
+    // #region mongo db
+
+    public static MongoModel() {
+        interface Interface {
+            {{#each fields}}
+            {{name}}: {{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertType type}}{{/ifDirective}};
+            {{/each}}
+        }
+
+        const schema = new Schema<Interface>({
+            {{#each fields}}
+            {{name}}: { type: {{mongooseType type}}, required: {{#ifDirective this "nullable"}}false{{else}}true{{/ifDirective}} },
+            {{/each}}
+        });
+
+        const ModelDB = models[this._mongoTableName] || model<Interface>(this._mongoTableName, schema);
+        return ModelDB;
+    }
+
+    // #endregion mongo db
+}
+
