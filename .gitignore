@@ -1,12 +1,7 @@
 node_modules
-src/types.d.ts
 dist
-src/resolvers/resolver.*.ts
 .idea
-BackEnd/*.ts
-FrontEnd/*.ts
-Entities/*.ts
-index.*
+
 yarn.lock
 package-lock.json
 
