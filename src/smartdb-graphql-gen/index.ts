@@ -154,8 +154,7 @@ function extractEntitiesFromSchema(schema: DocumentNode): EntityAnswers[] {
 
     return entityTypes.map(entity => {
         const flattenedEntity = flattenGraphQLAST(entity);
-        console.log(JSON.stringify(flattenedEntity, null, 2));
-
+        // console.log(JSON.stringify(flattenedEntity, null, 2));
 
         return {
             entityName: flattenedEntity.name,

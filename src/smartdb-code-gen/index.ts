@@ -212,17 +212,17 @@ async function generateFile(fileType: string, entity: ObjectTypeDefinitionNode, 
     const compiledTemplate = Handlebars.compile(template);
     
     const flattenedEntity = flattenGraphQLAST(entity);
-    console.log(JSON.stringify(flattenedEntity, null, 2));
+    // console.log(JSON.stringify(flattenedEntity, null, 2));
     
     const output = compiledTemplate(flattenedEntity);
-    console.log(JSON.stringify(output, null, 2));
+    // console.log(JSON.stringify(output, null, 2));
 
     const outputPath = path.join(outputDir, getOutputPath(fileType, entity.name.value));
     try {
         await fs.outputFile(outputPath, output);
         console.log(chalk.green(`✅ Successfully wrote ${fileType} file to ${outputPath}`));
-        if (fileType === 'page' || fileType === 'component') {
-            const scssPath = path.join(path.dirname(outputPath), `${fileType === 'page' ? entity.name.value.toLowerCase() : entity.name.value}.module.scss`);
+        if (fileType === 'component') {
+            const scssPath = path.join(path.dirname(outputPath), `${entity.name.value}.module.scss`);
             await fs.outputFile(scssPath, '/* Add your styles here */');
             console.log(chalk.green(`✅ Created SCSS file at ${scssPath}`));
         }
@@ -287,7 +287,6 @@ async function updateConfigurationFiles(entityName: string, generatedFiles: stri
         {
             path: 'lib/SmartDB/Entities/index.BackEnd.ts',
             content: [
-                `export * from './index';`,
                 generatedFiles.includes('entityMongo') ? `export * from './${entityName}.Entity.Mongo';` : null,
                 generatedFiles.includes('entityPostgreSQL') ? `export * from './${entityName}.Entity.PostgreSQL';` : null
             ].filter(Boolean).join('\n'),
@@ -316,29 +315,29 @@ async function updateConfigurationFiles(entityName: string, generatedFiles: stri
         }
     }
 
-    // Handle the special case of backEnd.ts
-    const backEndPath = path.join(outputDir, 'lib/SmartDB/backEnd.ts');
-    const backEndContent = `
-import { EndpointsManager, initBackEnd as initBackEndSmartDB } from 'smart-db/backEnd';
-export * from 'smart-db/backEnd';
-export * from './BackEnd/index';
-export * from './Entities/index.BackEnd';
+//     // Handle the special case of backEnd.ts
+//     const backEndPath = path.join(outputDir, 'lib/SmartDB/backEnd.ts');
+//     const backEndContent = `
+// import { EndpointsManager, initBackEnd as initBackEndSmartDB } from 'smart-db/backEnd';
+// export * from 'smart-db/backEnd';
+// export * from './BackEnd/index';
+// export * from './Entities/index.BackEnd';
 
-// NOTE: It is very important that this file is used to import from all API endpoints
-// so that all necessary decorators of all classes are generated.
+// // NOTE: It is very important that this file is used to import from all API endpoints
+// // so that all necessary decorators of all classes are generated.
 
-export function initBackEnd() {
-    initBackEndSmartDB();
-    const endpointsManager = EndpointsManager.getInstance();
-    // endpointsManager.setPublicEndPointsInternet([/^\\/api\\/blockfrost\\/.+/]);
-    // endpointsManager.setPublicEndPointsInternet([/^\\/api\\/dummy\\/all/]);
-}
-`;
+// export function initBackEnd() {
+//     initBackEndSmartDB();
+//     const endpointsManager = EndpointsManager.getInstance();
+//     // endpointsManager.setPublicEndPointsInternet([/^\\/api\\/blockfrost\\/.+/]);
+//     // endpointsManager.setPublicEndPointsInternet([/^\\/api\\/dummy\\/all/]);
+// }
+// `;
 
-    try {
-        await fs.outputFile(backEndPath, backEndContent);
-        console.log(`Created/Updated ${backEndPath}`);
-    } catch (error) {
-        console.error(`Error creating/updating ${backEndPath}: ${error}`);
-    }
+    // try {
+    //     await fs.outputFile(backEndPath, backEndContent);
+    //     console.log(`Created/Updated ${backEndPath}`);
+    // } catch (error) {
+    //     console.error(`Error creating/updating ${backEndPath}: ${error}`);
+    // }
 }
