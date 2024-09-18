@@ -8,7 +8,7 @@ import { {{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}} } from '
 
 @PostgreSQLAppliedFor([{{name}}Entity])
 @Entity({ name: getPostgreSQLTableName({{name}}Entity.className()) })
-@Index([{{#ifDirective this "index" }}{{#each indexName as |name|}}'{{name}}', {{/each}}{{/ifDirective}}]) // Add indices as needed
+{{#ifDirective this "index" }}@Index([{{#each indexName as |name|}}'{{name}}', {{/each}}]) // Add indices as needed{{/ifDirective}}
 export class {{name}}EntityPostgreSQL extends {{#ifDirective this "entity"}}BaseEntityPostgreSQL{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityPostgreSQL{{/ifDirective}} {
     protected static Entity = {{name}}Entity;
 
