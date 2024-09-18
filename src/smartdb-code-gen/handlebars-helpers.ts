@@ -6,9 +6,9 @@ import * as path from 'path';
 import { GraphQLSchema } from 'graphql';
 
 // Read the gql-gen.json file
-const gqlGenConfigPath = path.resolve(__dirname, './config/gql-gen.json');
+const gqlGenConfigPath = path.resolve(__dirname, 'config', 'gql-gen.json');
 const gqlGenConfig = JSON.parse(fs.readFileSync(gqlGenConfigPath, 'utf-8'));
-
+    
 // Type conversion map
 const gqlToTsTypeMap: { [key: string]: string } = {
     ...gqlGenConfig.primitives,

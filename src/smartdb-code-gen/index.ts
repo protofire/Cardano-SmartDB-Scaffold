@@ -199,7 +199,7 @@ program.parse(process.argv);
 
 async function generateFile(fileType: string, entity: ObjectTypeDefinitionNode, executableSchema: any, outputDir: string) {
     console.log(chalk.blue(`📝 Generating ${fileType} file for entity ${entity.name.value}`));
-    const templatePath = path.resolve(__dirname, `code-templates/${getTemplateName(fileType)}`);
+    const templatePath = path.resolve(__dirname, 'code-templates', `${getTemplateName(fileType)}`);
 
     let template: string;
     try {

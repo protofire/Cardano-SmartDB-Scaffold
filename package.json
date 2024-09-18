@@ -1,5 +1,5 @@
 {
-  "name": "smart-db-scaffold-cli",
+  "name": "smartdb-scaffold-tools",
   "version": "1.0.0",
   "description": "CLI tools for Smart DB schema and code generation",
   "main": "dist/index.js",
@@ -7,17 +7,20 @@
     "smartdb-graphql-gen": "./bin/smartdb-graphql-gen",
     "smartdb-code-gen": "./bin/smartdb-code-gen"
   },
+  "files": [
+    "bin",
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc && npm run copy-templates && npm run copy-config",
-    "copy-templates": "copyfiles -u 3 src/smartdb-code-gen/code-templates/*.handlebars dist/smartdb-code-gen/code-templates/",
-    "copy-config": "copyfiles -u 3 src/smartdb-code-gen/config/* dist/smartdb-code-gen/config/",
-    "smartdb-graphql-gen-builded": "node dist/smartdb-graphql-gen/index.js",
-    "smartdb-code-gen-builded": "node dist/smartdb-code-gen/index.js",
-    "smartdb-graphql-gen": "ts-node src/smartdb-graphql-gen/index.ts",
-    "smartdb-code-gen": "ts-node src/smartdb-code-gen/index.ts",
-    "pkg": "pkg .",
-    "pkg-smartdb-graphql-gen": "pkg dist/smartdb-graphql-gen/index.js -t node16-linux-x64,node16-macos-x64,node16-win-x64 -o bin/smartdb-graphql-gen",
-    "pkg-smartdb-code-gen": "pkg dist/smartdb-code-gen/index.js -t node16-linux-x64,node16-macos-x64,node16-win-x64 -o bin/smartdb-code-gen"
+    "dev:graphql": "ts-node src/smartdb-graphql-gen/index.ts",
+    "dev:code": "ts-node src/smartdb-code-gen/index.ts",
+    "build": "tsc && npm run copy-assets",
+    "copy-assets": "copyfiles -u 1 \"src/**/*.{handlebars,json}\" dist/",
+    "start:graphql": "node dist/smartdb-graphql-gen/index.js",
+    "start:code": "node dist/smartdb-code-gen/index.js",
+    "pkg": "npm run build && npm run pkg:graphql && npm run pkg:code",
+    "pkg:graphql": "pkg dist/smartdb-graphql-gen/index.js -t node16-linux-x64,node16-macos-x64,node16-win-x64 -o bin/smartdb-graphql-gen",
+    "pkg:code": "pkg dist/smartdb-code-gen/index.js -t node16-linux-x64,node16-macos-x64,node16-win-x64 -o bin/smartdb-code-gen"
   },
   "dependencies": {
     "chalk": "^4.1.2",
@@ -46,11 +49,18 @@
     "typescript": "^5.5.4"
   },
   "pkg": {
+    "scripts": [
+      "dist/**/*.js"
+    ],
+    "assets": [
+      "dist/**/*.handlebars",
+      "dist/**/*.json"
+    ],
     "targets": [
       "node16-linux-x64",
       "node16-macos-x64",
       "node16-win-x64"
     ],
-    "outputPath": "dist"
+    "outputPath": "bin"
   }
 }
