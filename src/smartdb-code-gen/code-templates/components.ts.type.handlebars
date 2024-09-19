@@ -12,9 +12,9 @@ export default function {{name}}() {
     }, []);
     //----------------------------
     const [list, setList] = useState<{{name}}Entity[]>();
+    const [newItem, setNewItem] = useState<Partial<{{name}}Entity>>({}); // Estado para el nuevo entidad
     //----------------------------
-    useEffect(() => {
-        const fetch = async () => {
+    const fetch = async () => {
             try {
                 const list: {{name}}Entity[] = await {{name}}Api.getAllApi_();
                 setList(list);
@@ -22,34 +22,84 @@ export default function {{name}}() {
                 console.error(e);
             }
         };
-        fetch();
-    }, []);
+    useEffect(() => {fetch();}, []);
     //----------------------------
     const handleBtnCreate = async () => {
-        let product = new {{name}}Entity({ name: 'TEST', description: 'DESC', precio: 11 });
-        await {{name}}Api.createApi(product);
+        try {
+          // Crear un nuevo entidad a partir de los datos de newItem
+          const entity = new {{name}}Entity(newItem);
+
+          // Llamada al API para crear el entidad en la base de datos
+          const created{{name}} = await {{name}}Api.createApi(entity);
+
+          // Limpiar los campos después de crear
+          setNewItem({});
+
+          fetch();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+    //----------------------------
+    const handleDelete = async (id: string) => {
+        try {
+            await {{name}}Api.deleteByIdApi({{name}}Entity, id); // Llama a la API para eliminar el elemento
+            fetch();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+    //----------------------------
+    const handleInputChange = (field: keyof {{name}}Entity, value: any) => {
+        setNewItem({
+            ...newItem,
+            [field]: value,
+        });
     };
     //----------------------------
     return (
         <div className={styles.content}>
-            Create {{name}}
             <div>
                 <div className={styles.subTitle}>CREATE</div>
-                <button onClick={handleBtnCreate}>Create</button>
-            </div>
-            List of {{name}}
-            <div>
-                <div className={styles.subTitle}>LIST</div>
-                {list?.map((item, index) => (
-                    <>
+                <form>
                     {{#each fields}}
-                        <div> {item.{{name}} } </div>
+                    <div>
+                        <label>{{name}}: </label>
+                        <input 
+                            type="text" 
+                            value={newItem.{{name}} || ''} 
+                            onChange={(e) => handleInputChange('{{name}}', e.target.value)} 
+                        />
+                    </div>
+                    <div>
+                    </div>
                     {{/each}}
-                    </>
-                ))}
+                    <button type="button" onClick={handleBtnCreate}>Create</button>
+                </form>
+            </div>
+            <div>
+                <div>List of {{name}}</div>
+                <div className={styles.listContainer}>
+                    <table border="1">
+                        <thead>
+                          <tr>
+                            {{#each fields}}<th key="{{@index}}">{{name}}</th>{{/each}}
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {list?.map((item, index) => (
+                              <tr key={index}>
+                                {{#each fields}}<td key="{{@index}}">{item.{{name}} }</td>{{/each}}
+                                <td>
+                                  <button onClick={() => handleDelete(item._DB_id)}>Delete</button>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
 }
-
 Modal.setAppElement('#__next');
