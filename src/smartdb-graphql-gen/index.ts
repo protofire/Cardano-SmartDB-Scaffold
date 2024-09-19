@@ -9,6 +9,7 @@ import { basicTypes, EntityAnswers, FieldAnswers, lucidCardanoTypes, smartDbType
 
 import { flattenGraphQLAST } from '../utils/helpers';
 import { generateMasterSchema } from './generate';
+import { type } from 'os';
 
 const program = new Command();
 
@@ -88,6 +89,7 @@ program
 
             if (action === 'Update') {
                 entities = extractEntitiesFromSchema(existingSchema);
+                // console.log (JSON.stringify(entities, null, 2));
             }
         }
 
@@ -161,7 +163,7 @@ function extractEntitiesFromSchema(schema: DocumentNode): EntityAnswers[] {
             entityType: flattenedEntity.directives.find((d: { name: string; }) => d.name === 'entity' || d.name === 'smartDBEntity')?.name as 'entity' | 'smartDBEntity',
             fields: flattenedEntity.fields.map((field: { name: any; type: any; nullable: any; directives: any[]; }) => ({
                 name: field.name,
-                ...field.type,
+                type: field.type,
                 isNullable: field.nullable,
                 isDatumField: field.directives.some(d => {
                     if (d.name !== 'convertible') return false;
@@ -171,7 +173,8 @@ function extractEntitiesFromSchema(schema: DocumentNode): EntityAnswers[] {
                         (typeof arg.value === 'string' ? arg.value.includes('isForDatum: true') : arg.value.includes('isForDatum: true'))
                     );
                 }),
-                addAnotherField: false
+                addAnotherField: false,
+                typeCategory: (basicTypes.includes(field.type) ? "Normal" : "Special")
             })),
             hasIndexes: flattenedEntity.directives.some((d: { name: string; }) => d.name === 'index'),
             indexes: (() => {

@@ -1,9 +1,32 @@
 import { EntityAnswers, FieldAnswers, TypeSelection } from './types';
 
+// function determineFieldType(fieldInfo: TypeSelection): {
+//     fieldType: string;
+//     especialTypeName?: string;
+// } {
+    // console.log("fieldInfo ",fieldInfo)
+//     if (fieldInfo.typeCategory === 'Normal') {
+//         return { fieldType: fieldInfo.type as string };
+//     } else {
+//         switch (fieldInfo.type) {
+//             case 'From Lucid Cardano':
+//                 return { fieldType: 'String', especialTypeName: fieldInfo.lucidType };
+//             case 'From Smart DB':
+//                 return { fieldType: 'String', especialTypeName: fieldInfo.smartDbType };
+//             case 'Custom':
+//                 return { fieldType: 'String', especialTypeName: fieldInfo.customType };
+//             default:
+//                 return { fieldType: 'Unknown' };
+//         }
+//     }
+// }
+
+
 function determineFieldType(fieldInfo: TypeSelection): {
     fieldType: string;
     especialTypeName?: string;
 } {
+    // console.log("fieldInfo ",fieldInfo.typeCategory)
     if (fieldInfo.typeCategory === 'Normal') {
         return { fieldType: fieldInfo.type as string };
     } else {
@@ -50,6 +73,8 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
     for (const field of fields) {
         const { fieldType, especialTypeName } = determineFieldType(field);
 
+        // console.log(fieldType)
+        // console.log(especialTypeName)
         schema += `    ${field.name}: ${fieldType}`;
 
         if (field.isNullable) {
@@ -84,6 +109,7 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
         schema += '\n';
     }
 
+    // console.log(schema)
     schema += '}\n';
 
     // Add import directive
