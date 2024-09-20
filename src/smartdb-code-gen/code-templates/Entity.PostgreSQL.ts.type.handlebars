@@ -46,7 +46,7 @@ export class {{name}}EntityPostgreSQL extends {{#ifDirective this "entity"}}Base
     _id!: number; // Auto-generated primary key
 
     {{#each fields}}
-    @Column({ {{{columnOptions this }}} {{#ifDirective this "nullable"}}, nullable: true{{/ifDirective}} })
+    @Column({ {{{columnOptions this }}} {{#ifDirective this "nullable"}}, nullable: true{{/ifDirective}}{{#ifDirective this "default"}}, default: {{formatDefaultValue defaultValue}}{{/ifDirective}} })
     {{name}}{{#ifDirective this "nullable"}}?{{else}}!{{/ifDirective}}:{{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertGqlTypeToTs type}}{{/ifDirective}};
     {{/each}}
 

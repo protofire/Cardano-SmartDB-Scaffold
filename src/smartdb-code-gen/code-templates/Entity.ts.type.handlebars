@@ -19,7 +19,7 @@ export class {{name}}Entity extends {{#ifDirective this "entity"}}Base{{/ifDirec
 
     {{#each fields}}
     @Convertible({{#ifDirective this "convertible" }} { {{#each params as |param|}}{{{param}}}, {{/each}} } {{/ifDirective}})
-    {{name}}{{#ifDirective this "nullable"}}?{{ else }}!{{/ifDirective}}: {{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertGqlTypeToTs type}}{{/ifDirective}}{{#ifDirective this "default"}} = {{formatDefaultValue defaultValue}}{{/ifDirective}};
+    {{name}}{{#ifDirective this "nullable"}}?{{ else }}!{{/ifDirective}}: {{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertGqlTypeToTs type}}{{/ifDirective}};
     {{/each}}
 
     // #endregion fields

@@ -60,7 +60,7 @@ export class {{name}}EntityMongo extends {{#ifDirective this "entity"}}BaseEntit
 
         const schema = new Schema<Interface>({
             {{#each fields}}
-            {{name}}: { type: {{mongooseType type}}, required: {{#ifDirective this "nullable"}}false{{else}}true{{/ifDirective}} },
+            {{name}}: { type: {{mongooseType type}}{{#ifDirective this "default"}}, default: {{formatDefaultValue defaultValue}}{{/ifDirective}}, required: {{#ifDirective this "nullable"}}false{{else}}true{{/ifDirective}} },
             {{/each}}
         });
 
