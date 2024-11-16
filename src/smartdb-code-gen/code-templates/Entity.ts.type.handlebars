@@ -14,9 +14,16 @@ import { {{#ifDirective this "especialImports" }}{{#each fromLucid_cardano as |i
 export class {{name}}Entity extends {{#ifDirective this "entity"}}Base{{/ifDirective}}{{#ifDirective this "smartDBEntity"}}BaseSmartDB{{/ifDirective}}Entity {
     protected static _apiRoute: string = '{{toLowerCase name}}';
     protected static _className: string = '{{name}}';
+    protected static _plutusDataIsSubType = false;
 
     // #region fields
+    {{#ifDirective this "smartDBEntity"}}
+    // The _is_NET_id_Unique flag indicates whether the NFT ID is unique in the datum (for NFTs) or if it's a fungible token (FT).
+    protected static _is_NET_id_Unique = false;
 
+    // The token name for the minting policy.
+    _NET_id_TN: string = mintingPolicyID_TN;
+    {{/ifDirective}}
     {{#each fields}}
     @Convertible({{#ifDirective this "convertible" }} { {{#each params as |param|}}{{{param}}}, {{/each}} } {{/ifDirective}})
     {{name}}{{#ifDirective this "nullable"}}?{{ else }}!{{/ifDirective}}: {{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertGqlTypeToTs type}}{{/ifDirective}};
