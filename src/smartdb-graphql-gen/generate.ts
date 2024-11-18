@@ -86,9 +86,9 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
 
             // Add imports
             if (field.type === 'From Lucid Cardano') {
-                lucidCardanoImports.add(especialTypeName);
+                lucidCardanoImports.add(`type ${especialTypeName}`);
             } else if (field.type === 'From Smart DB') {
-                smartDbImports.add(especialTypeName);
+                smartDbImports.add(`type ${especialTypeName}`);
             } else if (field.type === 'Custom' && field.customTypeImport) {
                 if (field.customTypeImport.length != 0) {
                     customImports.add({
