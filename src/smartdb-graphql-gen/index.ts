@@ -485,8 +485,8 @@ async function getTypeSelection(parentType?: string, defaultValues?:FieldAnswers
             name: 'customTypeImport',
             message: 'Enter where to import the custom type from:',
             when: (answers: TypeSelection) => answers.type === 'Custom',
-            default: defaultValues?.customTypeImport || 'Enter Import Path',
-            validate: (input: string) => input.trim() !== '' || 'Custom type import path cannot be empty',
+            default: defaultValues?.customTypeImport || '',
+            // validate: (input: string) => input.trim() !== '' || 'Custom type import path cannot be empty',
         },
     ];
 

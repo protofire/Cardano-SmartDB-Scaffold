@@ -4,7 +4,7 @@ import { EntityAnswers, FieldAnswers, TypeSelection } from './types';
 //     fieldType: string;
 //     especialTypeName?: string;
 // } {
-    // console.log("fieldInfo ",fieldInfo)
+// console.log("fieldInfo ",fieldInfo)
 //     if (fieldInfo.typeCategory === 'Normal') {
 //         return { fieldType: fieldInfo.type as string };
 //     } else {
@@ -20,7 +20,6 @@ import { EntityAnswers, FieldAnswers, TypeSelection } from './types';
 //         }
 //     }
 // }
-
 
 function determineFieldType(fieldInfo: TypeSelection): {
     fieldType: string;
@@ -91,10 +90,12 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
             } else if (field.type === 'From Smart DB') {
                 smartDbImports.add(especialTypeName);
             } else if (field.type === 'Custom' && field.customTypeImport) {
-                customImports.add({
-                    type: especialTypeName,
-                    from: field.customTypeImport,
-                });
+                if (field.customTypeImport.length != 0) {
+                    customImports.add({
+                        type: especialTypeName,
+                        from: field.customTypeImport,
+                    });
+                }
             }
         }
 
@@ -140,7 +141,7 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
 }
 
 export function generateMasterSchema(entities: EntityAnswers[]): string {
-    console.log (JSON.stringify(entities, null, 2));
+    console.log(JSON.stringify(entities, null, 2));
 
     let schema = `
 directive @entity on OBJECT
