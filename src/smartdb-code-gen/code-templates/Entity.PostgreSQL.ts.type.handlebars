@@ -1,8 +1,8 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { {{name}}Entity } from './{{name}}.Entity';
-import { PostgreSQLAppliedFor, getPostgreSQLTableName{{#ifDirective this "especialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
+import { PostgreSQLAppliedFor, getPostgreSQLTableName{{#ifDirective this "specialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
 import { {{#ifDirective this "entity"}}BaseEntityPostgreSQL{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityPostgreSQL{{/ifDirective}} } from 'smart-db/backEnd';
-{{#ifDirective this "especialImports" }}
+{{#ifDirective this "specialImports" }}
 import { {{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}} } from 'lucid-cardano';
 {{/ifDirective}}
 
@@ -11,6 +11,18 @@ import { {{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}} } from '
 {{#ifDirective this "index" }}@Index([{{#each indexName as |name|}}'{{name}}', {{/each}}]) // Add indices as needed{{/ifDirective}}
 export class {{name}}EntityPostgreSQL extends {{#ifDirective this "entity"}}BaseEntityPostgreSQL{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityPostgreSQL{{/ifDirective}} {
     protected static Entity = {{name}}Entity;
+
+    // #region fields
+
+    @PrimaryGeneratedColumn()
+    _id!: number; // Auto-generated primary key
+
+    {{#each fields}}
+    @Column({ {{{columnOptions this }}} {{#ifDirective this "nullable"}}, nullable: true{{/ifDirective}}{{#ifDirective this "default"}}, default: {{formatDefaultValue defaultValue}}{{/ifDirective}} })
+    {{name}}{{#ifDirective this "nullable"}}?{{else}}!{{/ifDirective}}:{{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertGqlTypeToTs type}}{{/ifDirective}};
+    {{/each}}
+
+    // #endregion fields
 
     // #region internal class methods
 
@@ -40,18 +52,11 @@ export class {{name}}EntityPostgreSQL extends {{#ifDirective this "entity"}}Base
 
     // #endregion internal class methods
 
-    // #region fields
-
-    @PrimaryGeneratedColumn()
-    _id!: number; // Auto-generated primary key
-
-    {{#each fields}}
-    @Column({ {{{columnOptions this }}} {{#ifDirective this "nullable"}}, nullable: true{{/ifDirective}}{{#ifDirective this "default"}}, default: {{formatDefaultValue defaultValue}}{{/ifDirective}} })
-    {{name}}{{#ifDirective this "nullable"}}?{{else}}!{{/ifDirective}}:{{#ifDirective this "specialType" }} {{{typeName}}} {{ else }}{{convertGqlTypeToTs type}}{{/ifDirective}};
-    {{/each}}
+    // #region posgresql db
 
     public static PostgreSQLModel() {
         return this;
     }
-    // #endregion fields
+
+    // #endregion posgresql db
 }

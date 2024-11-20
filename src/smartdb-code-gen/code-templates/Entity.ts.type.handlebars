@@ -1,11 +1,8 @@
 import 'reflect-metadata';
 
-import { Convertible{{#ifDirective this "entity"}}, BaseEntity, asEntity{{/ifDirective}}{{#ifDirective this "smartDBEntity"}}, BaseSmartDBEntity, asSmartDBEntity{{/ifDirective}}{{#ifDirective this "especialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
-import { {{#ifDirective this "especialImports" }}{{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}}{{/ifDirective}} } from 'lucid-cardano';
-{{#ifDirective this "smartDBEntity"}}
+import { Convertible{{#ifDirective this "entity"}}, BaseEntity, asEntity{{/ifDirective}}{{#ifDirective this "smartDBEntity"}}, BaseSmartDBEntity, asSmartDBEntity{{/ifDirective}}{{#ifDirective this "specialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
 
-import { mintingPolicyID_TN } from '../../Commons/Constants/onchain';
-{{/ifDirective}}
+import { {{#ifDirective this "specialImports" }}{{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}}{{/ifDirective}} } from 'lucid-cardano';
 
 {{#ifDirective this "entity"}}
 @asEntity()
@@ -13,11 +10,32 @@ import { mintingPolicyID_TN } from '../../Commons/Constants/onchain';
 {{#ifDirective this "smartDBEntity"}}
 @asSmartDBEntity()
 {{/ifDirective}}
-
 export class {{name}}Entity extends {{#ifDirective this "entity"}}Base{{/ifDirective}}{{#ifDirective this "smartDBEntity"}}BaseSmartDB{{/ifDirective}}Entity {
     protected static _apiRoute: string = '{{toLowerCase name}}';
     protected static _className: string = '{{name}}';
+
+    {{#ifDirective this "smartDBEntity"}}
+    {{#if plutusDataIsSubType}}
+    protected static _plutusDataIsSubType = {{plutusDataIsSubType}};
+    {{#if plutusDataIndex}}
+    protected static _plutusDataIndex = {{plutusDataIndex}};
+    {{else}}
+    protected static _plutusDataIndex = 0;
+    {{/if}}
+    {{else}}
     protected static _plutusDataIsSubType = false;
+    {{/if}}
+    {{#if isNETIdUnique}}
+    protected static _is_NET_id_Unique = {{isNETIdUnique}};
+    {{else}}
+    protected static _is_NET_id_Unique = false;
+    {{/if}}
+    {{#if tokenName}}
+    _NET_id_TN: string = '{{tokenName}}';
+    {{else}}
+    _NET_id_TN: string = '{{name}}ID';
+    {{/if}}
+    {{/ifDirective}}
 
     // #region fields
     {{#ifDirective this "smartDBEntity"}}
@@ -47,3 +65,5 @@ export class {{name}}Entity extends {{#ifDirective this "entity"}}Base{{/ifDirec
 
     // #endregion db
 }
+
+

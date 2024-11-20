@@ -1,10 +1,10 @@
 
 import { Schema, model, models } from 'mongoose';
 import 'reflect-metadata';
-import { MongoAppliedFor {{#ifDirective this "especialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
+import { MongoAppliedFor {{#ifDirective this "specialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
 import { {{#ifDirective this "entity"}}BaseEntityMongo{{/ifDirective}} {{#ifDirective this "smartDBEntity"}}BaseSmartDBEntityMongo, IBaseSmartDBEntity{{/ifDirective}} } from 'smart-db/backEnd';
 import { {{name}}Entity } from './{{name}}.Entity';
-{{#ifDirective this "especialImports" }}
+{{#ifDirective this "specialImports" }}
 import { {{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}} } from 'lucid-cardano';
 {{/ifDirective}}
 
