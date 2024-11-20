@@ -1,15 +1,31 @@
-import { Command } from 'commander';
-import * as inquirer from 'inquirer';
-import * as fs from 'fs-extra';
-import * as path from 'path';
 import chalk from 'chalk';
-import { parse, DocumentNode, ObjectTypeDefinitionNode } from 'graphql';
+import { Command } from 'commander';
+import * as fs from 'fs-extra';
 import * as glob from 'glob';
-import { basicTypes, EntityAnswers, FieldAnswers, lucidCardanoTypes, smartDbTypes, SpecialTypeSource, TypeSelection, typesWithSubtypes } from './types';
+import { DocumentNode, ObjectTypeDefinitionNode, parse } from 'graphql';
+import * as inquirer from 'inquirer';
+import * as path from 'path';
+import {
+    BasicType,
+    basicTypes,
+    Directive,
+    EntityAnswers,
+    FieldAnswers,
+    FlattenedEntity,
+    FlattenedField,
+    LucidCardanoType,
+    lucidCardanoTypes,
+    SmartDBEntityParams,
+    SmartDbType,
+    smartDbTypes,
+    SpecialTypeSource,
+    TypeCategory,
+    TypeSelection,
+    typesWithSubtypes,
+} from './types';
 
 import { flattenGraphQLAST } from '../utils/helpers';
 import { generateMasterSchema } from './generate';
-import { type } from 'os';
 
 const program = new Command();
 
@@ -24,7 +40,7 @@ program
 
         if (!outputFile) {
             const graphqlFiles = glob.sync('**/*.graphql', { cwd: process.cwd() });
-            const fileChoices = graphqlFiles.map(file => ({ name: file, value: file }));
+            const fileChoices = graphqlFiles.map((file) => ({ name: file, value: file }));
             fileChoices.push({ name: 'Create new file', value: 'new' });
 
             const { selectedFile } = await inquirer.prompt([
@@ -32,8 +48,8 @@ program
                     type: 'list',
                     name: 'selectedFile',
                     message: 'Select a GraphQL schema file or create a new one:',
-                    choices: fileChoices
-                }
+                    choices: fileChoices,
+                },
             ]);
 
             if (selectedFile === 'new') {
@@ -42,21 +58,21 @@ program
                         type: 'input',
                         name: 'newFilePath',
                         message: 'Enter the path for the new GraphQL schema file:',
-                        default: 'schema.graphql'
-                    }
+                        default: 'schema.graphql',
+                    },
                 ]);
                 outputFile = newFilePath;
             } else {
                 outputFile = selectedFile;
-                let schemaContent: string;    
+                let schemaContent: string;
                 try {
                     schemaContent = await fs.readFile(outputFile, 'utf-8');
                     console.log(chalk.green('✅ Successfully read schema file'));
                 } catch (error) {
                     console.error(chalk.red(`❌ Error reading schema file: ${error}`));
                     return;
-                }   
-                
+                }
+
                 try {
                     existingSchema = parse(schemaContent);
                     console.log(chalk.green('✅ Successfully parsed schema'));
@@ -64,7 +80,6 @@ program
                     console.error(chalk.red(`❌ Error parsing schema: ${error}`));
                     return;
                 }
-                
             }
         }
 
@@ -78,8 +93,8 @@ program
                     type: 'list',
                     name: 'action',
                     message: 'What would you like to do with the existing schema?',
-                    choices: ['Update', 'Overwrite completely', 'Cancel']
-                }
+                    choices: ['Update', 'Overwrite completely', 'Cancel'],
+                },
             ]);
 
             if (action === 'Cancel') {
@@ -89,7 +104,7 @@ program
 
             if (action === 'Update') {
                 entities = extractEntitiesFromSchema(existingSchema);
-                // console.log (JSON.stringify(entities, null, 2));
+                // console.log('entities: ' + JSON.stringify(entities, null, 2));
             }
         }
 
@@ -102,8 +117,8 @@ program
                         type: 'list',
                         name: 'entityAction',
                         message: 'What would you like to do?',
-                        choices: ['Update existing entity', 'Add new entity', 'Finish editing']
-                    }
+                        choices: ['Update existing entity', 'Add new entity', 'Finish editing'],
+                    },
                 ]);
 
                 if (entityAction === 'Update existing entity') {
@@ -116,6 +131,7 @@ program
                 }
             } else {
                 const newEntity = await createNewEntity();
+
                 entities.push(newEntity);
 
                 const { addMore } = await inquirer.prompt([
@@ -123,8 +139,8 @@ program
                         type: 'confirm',
                         name: 'addMore',
                         message: 'Do you want to add another entity?',
-                        default: true
-                    }
+                        default: true,
+                    },
                 ]);
 
                 continueEditing = addMore;
@@ -149,42 +165,130 @@ program.parse(process.argv);
 
 function extractEntitiesFromSchema(schema: DocumentNode): EntityAnswers[] {
     const entityTypes = schema.definitions.filter(
-        def => def.kind === 'ObjectTypeDefinition' && 
-               (def.directives?.some(d => d.name.value === 'entity') ||
-                def.directives?.some(d => d.name.value === 'smartDBEntity'))
+        (def) => def.kind === 'ObjectTypeDefinition' && (def.directives?.some((d) => d.name.value === 'entity') || def.directives?.some((d) => d.name.value === 'smartDBEntity'))
     ) as ObjectTypeDefinitionNode[];
 
-    return entityTypes.map(entity => {
-        const flattenedEntity = flattenGraphQLAST(entity);
-        // console.log(JSON.stringify(flattenedEntity, null, 2));
+    return entityTypes.map((entity) => {
+        const flattenedEntity = flattenGraphQLAST(entity) as FlattenedEntity;
+        // console.log('flattenedEntity: ' + JSON.stringify(flattenedEntity, null, 2));
+        
+        const smartDBDirective = flattenedEntity.directives.find((d: Directive) => d.name === 'smartDBEntity');
+        const smartDBParams: SmartDBEntityParams | undefined = smartDBDirective
+            ? {
+                  plutusDataIsSubType: smartDBDirective.args.plutusDataIsSubType === true,
+                  plutusDataIndex: smartDBDirective.args.plutusDataIndex || 0,
+                  isNETIdUnique: smartDBDirective.args.isNETIdUnique === true,
+                  tokenName: smartDBDirective.args.tokenName || `${flattenedEntity.name}ID`,
+              }
+            : undefined;
+
+        // Get custom imports information
+        const specialImportsDirective = flattenedEntity.directives.find((d) => d.name === 'specialImports');
+        const rawImports = specialImportsDirective?.args?.rawImport;
 
         return {
             entityName: flattenedEntity.name,
-            entityType: flattenedEntity.directives.find((d: { name: string; }) => d.name === 'entity' || d.name === 'smartDBEntity')?.name as 'entity' | 'smartDBEntity',
-            fields: flattenedEntity.fields.map((field: { name: any; type: any; nullable: any; directives: any[]; }) => ({
-                name: field.name,
-                type: field.type,
-                isNullable: field.nullable,
-                isDatumField: field.directives.some(d => {
-                    if (d.name !== 'convertible') return false;
-                    if (!Array.isArray(d.args)) return false;
-                    return d.args.some((arg: { name: string; value: string | string[]; }) => 
-                        arg.name === 'params' && 
-                        (typeof arg.value === 'string' ? arg.value.includes('isForDatum: true') : arg.value.includes('isForDatum: true'))
-                    );
-                }),
-                addAnotherField: false,
-                typeCategory: (basicTypes.includes(field.type) ? "Normal" : "Special")
-            })),
-            hasIndexes: flattenedEntity.directives.some((d: { name: string; }) => d.name === 'index'),
+            entityType: flattenedEntity.directives.find((d: Directive) => d.name === 'entity' || d.name === 'smartDBEntity')?.name as 'entity' | 'smartDBEntity',
+            fields: flattenedEntity.fields.map((field: FlattenedField): FieldAnswers => {
+                const specialTypeDirective = field.directives.find((d) => d.name === 'specialType');
+                const typeName = specialTypeDirective?.args?.typeName;
+
+                let typeSelection: TypeSelection;
+
+                if (!typeName) {
+                    typeSelection = {
+                        typeCategory: 'Normal',
+                        type: field.type as BasicType,
+                    };
+                } else {
+                    typeSelection = inferTypeSelection(typeName, rawImports);
+                }
+
+                const convertibleDirective = field.directives.find((d) => d.name === 'convertible');
+                const isDatumField = convertibleDirective?.args?.params?.includes('isForDatum: true') || false;
+
+                const defaultDirective = field.directives.find((d) => d.name === 'default');
+                const defaultValue = defaultDirective?.args?.defaultValue;
+
+                return {
+                    name: field.name,
+                    ...typeSelection,
+                    isNullable: field.directives.some((d) => d.name === 'nullable'),
+                    isDatumField,
+                    setDefault: !!defaultValue,
+                    defaultValue,
+                    addAnotherField: false,
+                };
+            }),
+            hasIndexes: flattenedEntity.directives.some((d) => d.name === 'index'),
             indexes: (() => {
-                const indexDirective = flattenedEntity.directives.find((d: { name: string; }) => d.name === 'index');
-                if (!indexDirective || !Array.isArray(indexDirective.args)) return [];
-                const indexNameArg = indexDirective.args.find((arg: { name: string; }) => arg.name === 'indexName');
-                return indexNameArg && Array.isArray(indexNameArg.value) ? indexNameArg.value : [];
-            })()
+                const indexDirective = flattenedEntity.directives.find((d) => d.name === 'index');
+                return indexDirective?.args?.indexName || [];
+            })(),
+            smartDBParams,
         };
     });
+}
+
+function inferTypeSelection(typeName: string, rawImports?: string): TypeSelection {
+    // First check if it's a type with subtypes
+    for (const typeWithSubtype of typesWithSubtypes) {
+        const match = typeName.match(new RegExp(`${typeWithSubtype}<(.+)>`));
+        if (match) {
+            const innerType = match[1];
+            return {
+                typeCategory: 'Special',
+                type: 'From Smart DB',
+                smartDbType: typeWithSubtype,
+                subtype: inferTypeSelection(innerType, rawImports),
+            };
+        }
+    }
+
+    // Check if it's a Lucid Cardano type
+    if (lucidCardanoTypes.includes(typeName as any)) {
+        return {
+            typeCategory: 'Special',
+            type: 'From Lucid Cardano',
+            lucidType: typeName as LucidCardanoType,
+        };
+    }
+    
+    // Check if it's a Smart DB type
+    if (smartDbTypes.includes(typeName as any)) {
+        return {
+            typeCategory: 'Special',
+            type: 'From Smart DB',
+            smartDbType: typeName as SmartDbType,
+        };
+    }
+    
+    // Check if it's a basic type
+    if (basicTypes.includes(typeName as any)) {
+        return {
+            typeCategory: 'Normal',
+            type: typeName as BasicType,
+        };
+    }
+    
+    // Check if it's a custom type
+    if (rawImports) {
+        const importMatch = rawImports.match(/import \{ (.+) \} from '(.+)'/);
+        if (importMatch && importMatch[1].includes(typeName)) {
+            return {
+                typeCategory: 'Special',
+                type: 'Custom',
+                customType: typeName,
+                customTypeImport: importMatch[2],
+            };
+        }
+    }
+    
+    // Fallback to normal type
+    return {
+        typeCategory: 'Normal',
+        type: typeName as BasicType,
+    };
 }
 
 async function updateExistingEntity(entities: EntityAnswers[]): Promise<void> {
@@ -193,29 +297,41 @@ async function updateExistingEntity(entities: EntityAnswers[]): Promise<void> {
             type: 'list',
             name: 'entityToUpdate',
             message: 'Which entity would you like to update?',
-            choices: entities.map(e => e.entityName)
-        }
+            choices: entities.map((e) => e.entityName),
+        },
     ]);
 
-    const entityIndex = entities.findIndex(e => e.entityName === entityToUpdate);
+    const entityIndex = entities.findIndex((e) => e.entityName === entityToUpdate);
     const entity = entities[entityIndex];
 
     console.log(chalk.yellow(`Updating entity: ${entityToUpdate}`));
 
     const updatedFields: FieldAnswers[] = [];
+    const indexUpdates = new Map<string, string>(); // Store old -> new field name mappings
 
+    // Update existing fields
     for (const field of entity.fields) {
+        const oldFieldName = field.name;
         const updatedField = await updateField(field, entity.entityType);
         updatedFields.push(updatedField);
+
+        // If field name changed and it was indexed, track the change
+        if (oldFieldName !== updatedField.name && entity.indexes?.includes(oldFieldName)) {
+            indexUpdates.set(oldFieldName, updatedField.name);
+        }
     }
+
+    // Update indexes with new field names
+    let indexes = entity.indexes || [];
+    indexes = indexes.map((indexField) => indexUpdates.get(indexField) || indexField);
 
     const { addMoreFields } = await inquirer.prompt([
         {
             type: 'confirm',
             name: 'addMoreFields',
             message: 'Do you want to add more fields to this entity?',
-            default: false
-        }
+            default: false,
+        },
     ]);
 
     if (addMoreFields) {
@@ -232,11 +348,9 @@ async function updateExistingEntity(entities: EntityAnswers[]): Promise<void> {
             type: 'confirm',
             name: 'updateIndexes',
             message: 'Do you want to update the indexes for this entity?',
-            default: false
-        }
+            default: false,
+        },
     ]);
-
-    let indexes = entity.indexes || [];
 
     if (updateIndexes) {
         const { newIndexes } = await inquirer.prompt([
@@ -244,9 +358,9 @@ async function updateExistingEntity(entities: EntityAnswers[]): Promise<void> {
                 type: 'checkbox',
                 name: 'newIndexes',
                 message: 'Select fields to index:',
-                choices: updatedFields.map(field => field.name),
-                default: indexes
-            }
+                choices: updatedFields.map((field) => field.name),
+                default: indexes,
+            },
         ]);
         indexes = newIndexes;
     }
@@ -255,7 +369,7 @@ async function updateExistingEntity(entities: EntityAnswers[]): Promise<void> {
         ...entity,
         fields: updatedFields,
         hasIndexes: indexes.length > 0,
-        indexes
+        indexes,
     };
 
     console.log(chalk.green(`✅ Entity "${entityToUpdate}" updated successfully`));
@@ -280,7 +394,14 @@ async function createNewEntity(): Promise<EntityAnswers> {
     ];
 
     const entityAnswers = await inquirer.prompt(entityQuestions);
+    let smartDBParams = undefined;
+
+    if (entityAnswers.entityType === 'smartDBEntity') {
+        smartDBParams = await getSmartDBParams(entityAnswers.entityName);
+    }
+
     const fields: FieldAnswers[] = [];
+
     let addAnotherField = true;
 
     while (addAnotherField) {
@@ -311,6 +432,44 @@ async function createNewEntity(): Promise<EntityAnswers> {
         fields,
         hasIndexes,
         indexes,
+        smartDBParams,
+    };
+}
+
+async function getSmartDBParams(entityName: string): Promise<SmartDBEntityParams> {
+    const params = await inquirer.prompt([
+        {
+            type: 'confirm',
+            name: 'plutusDataIsSubType',
+            message: 'Should plutusDataIsSubType be enabled?',
+            default: false,
+        },
+        {
+            type: 'number',
+            name: 'plutusDataIndex',
+            message: 'Enter plutusDataIndex value:',
+            default: 0,
+            when: (answers) => answers.plutusDataIsSubType,
+        },
+        {
+            type: 'confirm',
+            name: 'isNETIdUnique',
+            message: 'Should isNETIdUnique be enabled?',
+            default: false,
+        },
+        {
+            type: 'input',
+            name: 'tokenName',
+            message: 'Enter token name:',
+            default: `${entityName}ID`,
+        },
+    ]);
+
+    return {
+        plutusDataIsSubType: params.plutusDataIsSubType,
+        plutusDataIndex: params.plutusDataIsSubType ? params.plutusDataIndex : 0,
+        isNETIdUnique: params.isNETIdUnique,
+        tokenName: params.tokenName,
     };
 }
 
@@ -385,17 +544,26 @@ async function updateField(field: FieldAnswers, entityType: string): Promise<Fie
             type: 'input',
             name: 'name',
             message: 'Field name:',
-            default: field.name
+            default: field.name,
         },
         {
             type: 'confirm',
             name: 'updateType',
             message: 'Do you want to update the field type?',
-            default: false
-        }
+            default: false,
+        },
     ]);
 
-    let typeSelection: TypeSelection = field;
+    let typeSelection: TypeSelection = {
+        typeCategory: field.typeCategory,
+        type: field.type,
+        lucidType: field.lucidType,
+        smartDbType: field.smartDbType,
+        customType: field.customType,
+        customTypeImport: field.customTypeImport,
+        subtype: field.subtype,
+    };
+
     if (updatedField.updateType) {
         typeSelection = await getTypeSelection(undefined, field);
     }
@@ -405,28 +573,28 @@ async function updateField(field: FieldAnswers, entityType: string): Promise<Fie
             type: 'confirm',
             name: 'isNullable',
             message: 'Is this field nullable?',
-            default: field.isNullable
+            default: field.isNullable,
         },
         {
             type: 'confirm',
             name: 'isDatumField',
             message: 'Is this a datum field?',
             default: field.isDatumField,
-            when: () => entityType === 'smartDBEntity'
+            when: () => entityType === 'smartDBEntity',
         },
         {
             type: 'confirm',
             name: 'setDefault',
             message: 'Do you want to set a default value for this field?',
-            default: field.setDefault
+            default: field.setDefault,
         },
         {
             type: 'input',
             name: 'defaultValue',
             message: 'Enter the default value:',
             when: (answers: any) => answers.setDefault,
-            default: field.defaultValue
-        }
+            default: field.defaultValue,
+        },
     ];
 
     const additionalAnswers = await inquirer.prompt(additionalQuestions);
@@ -436,11 +604,11 @@ async function updateField(field: FieldAnswers, entityType: string): Promise<Fie
         ...updatedField,
         ...typeSelection,
         ...additionalAnswers,
-        addAnotherField: false
+        addAnotherField: false,
     };
 }
 
-async function getTypeSelection(parentType?: string, defaultValues?:FieldAnswers): Promise<TypeSelection> {
+async function getTypeSelection(parentType?: string, defaultValues?: TypeSelection): Promise<TypeSelection> {
     const typeQuestions: inquirer.QuestionCollection<TypeSelection> = [
         {
             type: 'list',
@@ -493,7 +661,7 @@ async function getTypeSelection(parentType?: string, defaultValues?:FieldAnswers
     const typeAnswers = await inquirer.prompt<TypeSelection>(typeQuestions);
 
     if (typesWithSubtypes.includes(typeAnswers.smartDbType as any)) {
-        typeAnswers.subtype = await getTypeSelection(typeAnswers.smartDbType);
+        typeAnswers.subtype = await getTypeSelection(typeAnswers.smartDbType, defaultValues?.subtype);
     }
 
     return typeAnswers;
