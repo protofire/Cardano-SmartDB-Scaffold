@@ -1,6 +1,6 @@
 {
   "name": "smartdb-scaffold-tools",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tools for Smart DB schema and code generation",
   "main": "dist/index.js",
   "bin": {
