@@ -29,6 +29,21 @@ export function flattenGraphQLAST(node: ObjectTypeDefinitionNode): any {
     if (node.directives) {
         flattenedType.directives = node.directives.map(flattenDirective);
 
+        // Find smartDBEntity directive
+        const smartDBDirective = node.directives.find(d => d.name.value === 'smartDBEntity');
+        if (smartDBDirective) {
+            flattenedType.entityType = 'smartDBEntity';
+            const args = flattenDirectiveArgs(smartDBDirective);
+            flattenedType.smartDBParams = {
+                plutusDataIsSubType: args.plutusDataIsSubType ?? false,
+                plutusDataIndex: args.plutusDataIndex ?? 0,
+                isNETIdUnique: args.isNETIdUnique ?? false,
+                tokenName: args.tokenName ?? `${node.name.value}ID`
+            };
+        } else if (node.directives.some(d => d.name.value === 'entity')) {
+            flattenedType.entityType = 'entity';
+        }
+        
         // Extract directive values to entity level
         node.directives.forEach(directive => {
             Object.assign(flattenedType, flattenDirectiveArgs(directive));
