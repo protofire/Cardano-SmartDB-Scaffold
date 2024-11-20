@@ -14,6 +14,7 @@
     - [Building from Source](#building-from-source)
   - [Usage](#usage)
     - [Step 1: Generate GraphQL Schema](#step-1-generate-graphql-schema)
+      - [SmartDB Entity Configuration](#smartdb-entity-configuration)
     - [Step 2: Generate Code](#step-2-generate-code)
   - [Integration with SmartDB Projects](#integration-with-smartdb-projects)
   - [Step-by-Step Guide](#step-by-step-guide)
@@ -129,6 +130,17 @@ smartdb-graphql-gen
    - Set up indexes if needed
 
 3. The tool will generate or update a GraphQL schema file in your specified location.
+
+#### SmartDB Entity Configuration
+
+When creating a SmartDB entity, you'll be prompted for additional configuration:
+
+- plutusDataIsSubType: Enables subtype support in Plutus data
+- plutusDataIndex: Index value for Plutus data (only if subtype enabled) 
+- isNETIdUnique: Whether TokenName ID should be unique: set to true if the token ID is a NFT or set to false when a FT token is used. 
+- tokenName: Token name (defaults to EntityNameID)
+
+These parameters are essential for proper SmartDB entity operation and blockchain interaction.
 
 ### Step 2: Generate Code
 
