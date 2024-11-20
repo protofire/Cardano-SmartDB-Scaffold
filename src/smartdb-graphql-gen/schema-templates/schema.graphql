@@ -1,30 +1,30 @@
 
 directive @entity on OBJECT
-directive @smartDBEntity on OBJECT
-directive @especialImports(fromSmart_db: [String], fromLucid_cardano: [String], rawImport: String) on OBJECT
+directive @smartDBEntity(plutusDataIsSubType: Boolean!, plutusDataIndex: Int, isNETIdUnique: Boolean!, tokenName: String!) on OBJECT
+directive @specialImports(fromSmart_db: [String], fromLucid_cardano: [String], rawImport: String) on OBJECT
 directive @index(indexName:[String]) on OBJECT
 directive @nullable on FIELD
-directive @especialType(typeName:String!) on FIELD
+directive @specialType(typeName:String!) on FIELD
 directive @default(defaultValue:String!) on FIELD
 directive @convertible(params: [String]) on FIELD
 
-type Dummy @smartDBEntity @especialImports(fromSmart_db:["Maybe", "StakeCredentialPubKeyHash"], fromLucid_cardano: ["type PaymentKeyHash"]) @index(indexName:["ddPaymentPKH"]) {
-    _NET_id_TN: String
-    ddPaymentPKH: String @specialType(typeName:"PaymentKeyHash") @convertible(params:["isForDatum: true"])
-    ddStakePKH: String @specialType(typeName:"Maybe<StakeCredentialPubKeyHash>") @convertible(params:["isForDatum: true", "type: Maybe<StakeCredentialPubKeyHash>"])
-    ddValue: Int @convertible(params:["isForDatum: true"])
+type Dummy @smartDBEntity(plutusDataIsSubType: false, isNETIdUnique: false, tokenName: "DummyID") @index(indexName:["ddPaymentPKH"])  @specialImports(fromSmart_db:["Maybe", "StakeCredentialPubKeyHash"], fromLucid_cardano:["PaymentKeyHash"]){
+ ddPaymentPKH: String @specialType(typeName:"PaymentKeyHash") @convertible(params:["isForDatum: true"])
+ ddStakePKH: String @specialType(typeName:"Maybe<StakeCredentialPubKeyHash>") @convertible(params:["isForDatum: true"])
+ ddValue: Int @convertible(params:["isForDatum: true"])
 }
 
 type Test @entity {
-    name: String
-    description: String
-} 
+ name: String
+ description: String
+}
 
 type Product @entity {
-    name: String @nullable
-    description: String
-    precio: Int
+ name: String @nullable
+ description: String
+ precio: Int
 }
+
 
 type Query @resolvers {
     not_used: String
