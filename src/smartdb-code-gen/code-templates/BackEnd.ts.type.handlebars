@@ -30,7 +30,7 @@ export class {{name}}ApiHandlers extends {{#ifDirective this "entity"}}BaseBackE
     protected static _Entity = {{name}}Entity;
     protected static _BackEndApplied = {{name}}BackEndApplied;
 {{#ifDirective this "smartDBEntity"}}
-// #region custom api handlers
+    // #region custom api handlers
 
     protected static _ApiHandlers: string[] = ['tx'];
 
@@ -41,11 +41,11 @@ export class {{name}}ApiHandlers extends {{#ifDirective this "entity"}}BaseBackE
         if (this._ApiHandlers.includes(command) && query !== undefined) {
             if (query[0] === 'tx') {
                 if (query.length === 2) {
-                    // if (query[1] === 'create-dummy-tx') {
+                    // if (query[1] === 'create-tx') {
                     //     return await this.createTxApiHandler(req, res);
-                    // } else if (query[1] === 'claim-dummy-tx') {
+                    // } else if (query[1] === 'claim-tx') {
                     //     return await this.claimTxApiHandler(req, res);
-                    // } else if (query[1] === 'update-dummy-tx') {
+                    // } else if (query[1] === 'update-tx') {
                     //     return await this.updateTxApiHandler(req, res);
                     // }
                 }
