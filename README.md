@@ -4,6 +4,7 @@
 - [Cardano SmartDB - Scaffold \& Code Generator](#cardano-smartdb---scaffold--code-generator)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
+  - [Documentation](#documentation)
   - [Tools Overview](#tools-overview)
     - [1. GraphQL Schema Generator (smartdb-graphql-gen)](#1-graphql-schema-generator-smartdb-graphql-gen)
     - [2. Code Generator (smartdb-code-gen)](#2-code-generator-smartdb-code-gen)
@@ -25,13 +26,17 @@
 
 ## Introduction
 
-The Cardano SmartDB Scaffold & Code Generator is a set of tools designed to streamline the development process for Cardano blockchain applications using the SmartDB library. These tools automate the creation of GraphQL schemas and generate boilerplate code for entities, making it easier to build and maintain Cardano dApps.
+The Cardano SmartDB Scaffold & Code Generator is a set of tools designed to streamline the development process for Cardano blockchain applications using the [SmartDB library](https://github.com/protofire/Cardano-SmartDB). These tools automate the creation of GraphQL schemas and generate boilerplate code for entities, making it easier to build and maintain Cardano dApps.
 
 **Important Note:** These tools are specifically designed to work within projects that use the SmartDB library. They generate files and structures that are compatible with and expected by SmartDB-based projects. It is highly recommended to use these tools within a forked version of the Cardano-SmartDB-Template.
 
 The toolkit consists of two main components:
 1. GraphQL Schema Generator (smartdb-graphql-gen)
 2. Code Generator (smartdb-code-gen)
+
+## Documentation
+
+For detailed documentation, please visit our [Gitbook](https://protofire-docs.gitbook.io/smartdb/smartdb-scaffold).
 
 ## Tools Overview
 
