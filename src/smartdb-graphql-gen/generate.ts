@@ -1,29 +1,8 @@
 import { EntityAnswers, FieldAnswers, TypeSelection } from './types';
 
-// function determineFieldType(fieldInfo: TypeSelection): {
-//     fieldType: string;
-//     especialTypeName?: string;
-// } {
-// console.log("fieldInfo ",fieldInfo)
-//     if (fieldInfo.typeCategory === 'Normal') {
-//         return { fieldType: fieldInfo.type as string };
-//     } else {
-//         switch (fieldInfo.type) {
-//             case 'From Lucid Cardano':
-//                 return { fieldType: 'String', especialTypeName: fieldInfo.lucidType };
-//             case 'From Smart DB':
-//                 return { fieldType: 'String', especialTypeName: fieldInfo.smartDbType };
-//             case 'Custom':
-//                 return { fieldType: 'String', especialTypeName: fieldInfo.customType };
-//             default:
-//                 return { fieldType: 'Unknown' };
-//         }
-//     }
-// }
-
 function determineFieldType(fieldInfo: TypeSelection): {
     fieldType: string;
-    especialTypeName?: string;
+    specialTypeName?: string;
 } {
     // console.log("fieldInfo ",fieldInfo.typeCategory)
     if (fieldInfo.typeCategory === 'Normal') {
@@ -31,11 +10,11 @@ function determineFieldType(fieldInfo: TypeSelection): {
     } else {
         switch (fieldInfo.type) {
             case 'From Lucid Cardano':
-                return { fieldType: 'String', especialTypeName: fieldInfo.lucidType };
+                return { fieldType: 'String', specialTypeName: fieldInfo.lucidType };
             case 'From Smart DB':
-                return { fieldType: 'String', especialTypeName: fieldInfo.smartDbType };
+                return { fieldType: 'String', specialTypeName: fieldInfo.smartDbType };
             case 'Custom':
-                return { fieldType: 'String', especialTypeName: fieldInfo.customType };
+                return { fieldType: 'String', specialTypeName: fieldInfo.customType };
             default:
                 return { fieldType: 'Unknown' };
         }
@@ -43,23 +22,35 @@ function determineFieldType(fieldInfo: TypeSelection): {
 }
 
 function getFullTypeName(fieldInfo: TypeSelection): string {
-    const { especialTypeName } = determineFieldType(fieldInfo);
-    if (!especialTypeName) return '';
+    const { specialTypeName } = determineFieldType(fieldInfo);
+    if (!specialTypeName) return '';
 
     if (fieldInfo.subtype) {
         const subTypeInfo = determineFieldType(fieldInfo.subtype);
-        return `${especialTypeName}<${subTypeInfo.especialTypeName || subTypeInfo.fieldType}>`;
+        return `${specialTypeName}<${subTypeInfo.specialTypeName || subTypeInfo.fieldType}>`;
     }
 
-    return especialTypeName;
+    return specialTypeName;
 }
 
 export function generateEntitySchema(entityAnswers: EntityAnswers, fields: FieldAnswers[]): string {
-    let schema = `type ${entityAnswers.entityName} @${entityAnswers.entityType}`;
-
     const smartDbImports = new Set<string>();
     const lucidCardanoImports = new Set<string>();
     const customImports = new Set<{ type: string; from: string }>();
+
+    let schema = `type ${entityAnswers.entityName}`;
+
+    if (entityAnswers.entityType === 'entity') {
+        schema += ' @entity';
+    } else if (entityAnswers.entityType === 'smartDBEntity' && entityAnswers.smartDBParams) {
+        const params = entityAnswers.smartDBParams;
+        schema +=
+            ` @smartDBEntity(` +
+            `plutusDataIsSubType: ${params.plutusDataIsSubType}, ` +
+            (params.plutusDataIsSubType ? `plutusDataIndex: ${params.plutusDataIndex}, ` : '') +
+            `isNETIdUnique: ${params.isNETIdUnique}, ` +
+            `tokenName: "${params.tokenName || entityAnswers.entityName + 'ID'}")`;
+    }
 
     // Add index information
     if (entityAnswers.hasIndexes && entityAnswers.indexes && entityAnswers.indexes.length > 0) {
@@ -69,34 +60,41 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
 
     schema += ' {\n';
 
+    // Helper function to recursively collect imports from type and its subtypes
+    function collectImportsFromType(typeSelection: TypeSelection) {
+        if (typeSelection.type === 'From Lucid Cardano' && typeSelection.lucidType) {
+            lucidCardanoImports.add(typeSelection.lucidType);
+        } else if (typeSelection.type === 'From Smart DB' && typeSelection.smartDbType) {
+            smartDbImports.add(typeSelection.smartDbType);
+            // If it's a Maybe or MinMaxDef, check its subtype
+            if ((typeSelection.smartDbType === 'Maybe' || typeSelection.smartDbType === 'MinMaxDef') && typeSelection.subtype) {
+                collectImportsFromType(typeSelection.subtype);
+            }
+        } else if (typeSelection.type === 'Custom' && typeSelection.customType && typeSelection.customTypeImport) {
+            customImports.add({
+                type: typeSelection.customType,
+                from: typeSelection.customTypeImport,
+            });
+        }
+    }
+
     for (const field of fields) {
-        const { fieldType, especialTypeName } = determineFieldType(field);
+        const { fieldType, specialTypeName } = determineFieldType(field);
 
         // console.log(fieldType)
-        // console.log(especialTypeName)
-        schema += `    ${field.name}: ${fieldType}`;
+        // console.log(specialTypeName)
+        schema += ` ${field.name}: ${fieldType}`;
 
         if (field.isNullable) {
             schema += ' @nullable';
         }
 
-        if (especialTypeName) {
+        if (specialTypeName) {
             const fullTypeName = getFullTypeName(field);
-            schema += ` @especialType(typeName:"${fullTypeName}")`;
+            schema += ` @specialType(typeName:"${fullTypeName}")`;
 
-            // Add imports
-            if (field.type === 'From Lucid Cardano') {
-                lucidCardanoImports.add(`type ${especialTypeName}`);
-            } else if (field.type === 'From Smart DB') {
-                smartDbImports.add(`type ${especialTypeName}`);
-            } else if (field.type === 'Custom' && field.customTypeImport) {
-                if (field.customTypeImport.length != 0) {
-                    customImports.add({
-                        type: especialTypeName,
-                        from: field.customTypeImport,
-                    });
-                }
-            }
+            // Collect imports from field and its subtypes
+            collectImportsFromType(field);
         }
 
         if (field.isDatumField) {
@@ -104,7 +102,7 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
         }
 
         if (field.defaultValue) {
-            schema += `  @default(defaultValue:"${field.defaultValue}")`;
+            schema += ` @default(defaultValue:"${field.defaultValue}")`;
         }
 
         schema += '\n';
@@ -115,7 +113,7 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
 
     // Add import directive
     if (smartDbImports.size > 0 || lucidCardanoImports.size > 0 || customImports.size > 0) {
-        let importDirective = ' @especialImports(';
+        let importDirective = ' @specialImports(';
         if (smartDbImports.size > 0) {
             importDirective += `fromSmart_db:[${Array.from(smartDbImports)
                 .map((type) => `"${type}"`)
@@ -141,15 +139,15 @@ export function generateEntitySchema(entityAnswers: EntityAnswers, fields: Field
 }
 
 export function generateMasterSchema(entities: EntityAnswers[]): string {
-    console.log(JSON.stringify(entities, null, 2));
+    // console.log('entities: '+JSON.stringify(entities, null, 2));
 
     let schema = `
 directive @entity on OBJECT
-directive @smartDBEntity on OBJECT
-directive @especialImports(fromSmart_db: [String], fromLucid_cardano: [String], rawImport: String) on OBJECT
+directive @smartDBEntity(plutusDataIsSubType: Boolean!, plutusDataIndex: Int, isNETIdUnique: Boolean!, tokenName: String!) on OBJECT
+directive @specialImports(fromSmart_db: [String], fromLucid_cardano: [String], rawImport: String) on OBJECT
 directive @index(indexName:[String]) on OBJECT
 directive @nullable on FIELD
-directive @especialType(typeName:String!) on FIELD
+directive @specialType(typeName:String!) on FIELD
 directive @default(defaultValue:String!) on FIELD
 directive @convertible(params: [String]) on FIELD
 
