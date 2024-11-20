@@ -1,7 +1,5 @@
 import 'reflect-metadata';
-
 import { Convertible{{#ifDirective this "entity"}}, BaseEntity, asEntity{{/ifDirective}}{{#ifDirective this "smartDBEntity"}}, BaseSmartDBEntity, asSmartDBEntity{{/ifDirective}}{{#ifDirective this "specialImports" }}{{#each fromSmart_db as |import|}}, {{{import}}}{{/each}}{{/ifDirective}} } from 'smart-db';
-
 import { {{#ifDirective this "specialImports" }}{{#each fromLucid_cardano as |import|}}{{{import}}}, {{/each}}{{/ifDirective}} } from 'lucid-cardano';
 
 {{#ifDirective this "entity"}}

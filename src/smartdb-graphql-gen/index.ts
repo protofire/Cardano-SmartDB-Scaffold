@@ -24,7 +24,7 @@ import {
     typesWithSubtypes,
 } from './types';
 
-import { flattenGraphQLAST } from '../utils/helpers';
+import { flattenGraphQL } from '../utils/helpers';
 import { generateMasterSchema } from './generate';
 
 const program = new Command();
@@ -169,7 +169,7 @@ function extractEntitiesFromSchema(schema: DocumentNode): EntityAnswers[] {
     ) as ObjectTypeDefinitionNode[];
 
     return entityTypes.map((entity) => {
-        const flattenedEntity = flattenGraphQLAST(entity) as FlattenedEntity;
+        const flattenedEntity = flattenGraphQL(entity) as FlattenedEntity;
         // console.log('flattenedEntity: ' + JSON.stringify(flattenedEntity, null, 2));
         
         const smartDBDirective = flattenedEntity.directives.find((d: Directive) => d.name === 'smartDBEntity');

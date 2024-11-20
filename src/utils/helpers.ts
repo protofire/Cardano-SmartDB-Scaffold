@@ -1,6 +1,6 @@
 import { ObjectTypeDefinitionNode } from "graphql";
 
-export function flattenGraphQLAST(node: ObjectTypeDefinitionNode): any {
+export function flattenGraphQL(node: ObjectTypeDefinitionNode): any {
     const flattenedType: any = {
         name: node.name.value,
         fields: [],

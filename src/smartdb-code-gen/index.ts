@@ -4,7 +4,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { parse, DocumentNode, ObjectTypeDefinitionNode } from 'graphql';
 import { Handlebars, createExecutableSchema } from './handlebars-helpers';
-import { flattenGraphQLAST } from '../utils/helpers';
+import { flattenGraphQL } from '../utils/helpers';
 import * as glob from 'glob';
 import chalk from 'chalk';
 
@@ -211,7 +211,7 @@ async function generateFile(fileType: string, entity: ObjectTypeDefinitionNode, 
 
     const compiledTemplate = Handlebars.compile(template);
     
-    const flattenedEntity = flattenGraphQLAST(entity);
+    const flattenedEntity = flattenGraphQL(entity);
     // console.log('flattenedEntity: '+JSON.stringify(flattenedEntity, null, 2));
     
     const output = compiledTemplate(flattenedEntity);
