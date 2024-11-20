@@ -152,7 +152,7 @@ program
 
         if (missingFolders.length > 0) {
             console.log(chalk.yellow('⚠️ The following folders will be created:'));
-            missingFolders.forEach(folder => console.log(chalk.yellow(`  - ${folder}`)));
+            missingFolders.forEach(folder => console.log(chalk.yellow(` - ${path.join(outputDir, folder)}`)));
             const { createFolders } = await inquirer.prompt([
                 {
                     type: 'confirm',
@@ -165,7 +165,7 @@ program
             if (createFolders) {
                 missingFolders.forEach(folder => {
                     fs.mkdirpSync(path.join(outputDir, folder));
-                    console.log(chalk.green(`✅ Created folder: ${folder}`));
+                    console.log(chalk.green(`✅ Created folder: ${path.join(outputDir, folder)}`));
                 });
             } else {
                 console.log(chalk.yellow('⚠️ Please create the required folders manually or use the Cardano-SmartDB-Template.'));
@@ -212,10 +212,10 @@ async function generateFile(fileType: string, entity: ObjectTypeDefinitionNode, 
     const compiledTemplate = Handlebars.compile(template);
     
     const flattenedEntity = flattenGraphQLAST(entity);
-    // console.log(JSON.stringify(flattenedEntity, null, 2));
+    // console.log('flattenedEntity: '+JSON.stringify(flattenedEntity, null, 2));
     
     const output = compiledTemplate(flattenedEntity);
-    // console.log(JSON.stringify(output, null, 2));
+    // console.log('output: '+JSON.stringify(output, null, 2));
 
     const outputPath = path.join(outputDir, getOutputPath(fileType, entity.name.value));
     try {
