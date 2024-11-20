@@ -47,9 +47,17 @@ export type TypeWithSubtype = (typeof typesWithSubtypes)[number];
 export interface EntityAnswers {
     entityName: string;
     entityType: EntityType;
+    smartDBParams?: SmartDBEntityParams;
     hasIndexes?: boolean;
     indexes?: string[];
     fields: FieldAnswers[];
+}
+
+export interface SmartDBEntityParams {
+    plutusDataIsSubType: boolean;
+    plutusDataIndex?: number;
+    isNETIdUnique: boolean;
+    tokenName: string;
 }
 
 export interface TypeSelection {
@@ -69,4 +77,44 @@ export interface FieldAnswers extends TypeSelection {
     setDefault?: boolean;
     defaultValue?: string;
     addAnotherField: boolean;
+}
+
+export interface DirectiveArg {
+    typeName?: string;
+    params?: string[];
+    defaultValue?: string;
+    plutusDataIsSubType?: boolean;
+    plutusDataIndex?: number;
+    isNETIdUnique?: boolean;
+    tokenName?: string;
+    indexName?: string[];
+    fromSmart_db?: string[];
+    fromLucid_cardano?: string[];
+    rawImport: string;
+}
+
+export interface Directive {
+    name: string;
+    args: DirectiveArg;
+}
+
+export interface FlattenedField {
+    name: string;
+    type: string;
+    directives: Directive[];
+    typeName?: string;
+    params?: string[];
+    defaultValue?: string;
+}
+
+export interface FlattenedEntity {
+    name: string;
+    fields: FlattenedField[];
+    directives: Directive[];
+    entityType: string;
+    smartDBParams?: SmartDBEntityParams;
+    indexName?: string[];
+    fromSmart_db?: string[];
+    fromLucid_cardano?: string[];
+    rawImport: string;
 }
